@@ -59,6 +59,20 @@ bpf_open(void)
 }
 
 int
+bpf_setblen(int fd, u_int len)
+{
+	int r;
+
+	caml_enter_blocking_section();
+	r = ioctl(fd, BIOCSBLEN, &len);
+	caml_leave_blocking_section();
+	if (r == -1)
+		uerror("bpf_setblen", Nothing);
+
+	return (r);
+}
+
+int
 bpf_setif(int fd, char *ifname)
 {
 	struct ifreq ifreq;
@@ -75,6 +89,20 @@ bpf_setif(int fd, char *ifname)
 	return (r);
 }
 
+int
+bpf_setimmediate(int fd, u_int opt)
+{
+	int r;
+
+	caml_enter_blocking_section();
+	r = ioctl(fd, BIOCIMMEDIATE, &opt);
+	caml_leave_blocking_section();
+	if (r == -1)
+		uerror("bpf_setimmediate", Nothing);
+
+	return (r);
+}
+
 CAMLprim value
 caml_rawlink_open(char *ifname)
 {
@@ -83,7 +111,11 @@ caml_rawlink_open(char *ifname)
 
 	if ((fd = bpf_open()) == -1)
 		CAMLreturn(Val_unit);
+	if (bpf_setblen(fd, UNIX_BUFFER_SIZE) == -1)
+		CAMLreturn(Val_unit);
 	if (bpf_setif(fd, ifname) == -1)
+		CAMLreturn(Val_unit);
+	if ((fd = bpf_setimmediate(fd, 1)) == -1)
 		CAMLreturn(Val_unit);
 
 	CAMLreturn (Val_int(fd));
