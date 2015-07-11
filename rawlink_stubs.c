@@ -115,7 +115,7 @@ caml_rawlink_open(char *ifname)
 		CAMLreturn(Val_unit);
 	if (bpf_setif(fd, ifname) == -1)
 		CAMLreturn(Val_unit);
-	if ((fd = bpf_setimmediate(fd, 1)) == -1)
+	if (bpf_setimmediate(fd, 1) == -1)
 		CAMLreturn(Val_unit);
 
 	CAMLreturn (Val_int(fd));
