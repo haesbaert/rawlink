@@ -15,11 +15,9 @@ let readsock_lwt fd =
                (fun () -> readsock (Lwt_unix.unix_file_descr fd))
 
 let open_link ifname =
-  (* XXX SET NONBLOCKING *)
-  {
-  fd = Lwt_unix.of_unix_file_descr (opensock ifname);
-  packets = ref []
-}
+  let fd = Lwt_unix.of_unix_file_descr (opensock ifname) in
+  let () = Lwt_unix.set_blocking fd false in
+  { fd; packets = ref [] }
 
 let close_link t = Lwt_unix.close t.fd
 
