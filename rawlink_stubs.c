@@ -118,6 +118,59 @@ bpf_setimmediate(int fd, u_int opt)
 }
 
 CAMLprim value
+caml_rawlink_read(value vfd)
+{
+	CAMLparam1(vfd);
+	CAMLlocal3(vtail, vprevtail, vhead);
+	struct bpf_hdr *hp;
+	char buf[UNIX_BUFFER_SIZE], *p, *eh;
+	ssize_t n;
+	int fd = Int_val(vfd);
+
+	bzero(buf, sizeof(buf));
+again:
+	caml_enter_blocking_section();
+	n = read(fd, buf, sizeof(buf));
+	caml_leave_blocking_section();
+
+	if (n == -1) {
+		if (errno == EAGAIN)
+			goto again;
+		uerror("read", Nothing);
+		CAMLreturn (Val_unit);
+	}
+	vhead = vprevtail = vtail = Val_int(0);
+
+	p = buf;
+	hp = (struct bpf_hdr *) p;
+	eh = p + hp->bh_hdrlen;
+
+	while (p < (buf + n)) {
+		if (hp->bh_caplen != hp->bh_datalen)
+			continue;
+
+		/* Create the new tail */
+		vtail = caml_alloc_small(2, 0);
+		Field(vtail, 0) = caml_alloc_string(hp->bh_caplen);
+		memcpy(String_val(Field(vtail, 0)), p, hp->bh_caplen);
+		Field(vtail, 1) = Val_int(0);
+
+		/* If not the first element... */
+		if (p != buf)
+			caml_modify(&Field(vprevtail, 1), vtail);
+		else
+			vhead = vtail;
+
+		vprevtail = vtail;
+		p += BPF_WORDALIGN(hp->bh_hdrlen + hp->bh_caplen);
+		hp = (struct bpf_hdr *) p;
+		eh = p + hp->bh_hdrlen;
+	}
+
+	CAMLreturn (vhead);
+}
+
+CAMLprim value
 caml_rawlink_open(char *ifname)
 {
 	CAMLparam0();
