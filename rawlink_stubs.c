@@ -59,6 +59,20 @@ bpf_open(void)
 }
 
 int
+bpf_seesent(int fd, u_int opt)
+{
+	int r;
+
+	caml_enter_blocking_section();
+	r = ioctl(fd, BIOCSSEESENT, &opt);
+	caml_leave_blocking_section();
+	if (r == -1)
+		uerror("bpf_seesent", Nothing);
+
+	return (r);
+}
+
+int
 bpf_setblen(int fd, u_int len)
 {
 	int r;
@@ -110,6 +124,8 @@ caml_rawlink_open(char *ifname)
 	int fd;
 
 	if ((fd = bpf_open()) == -1)
+		CAMLreturn(Val_unit);
+	if (bpf_seesent(fd, 0) == -1)
 		CAMLreturn(Val_unit);
 	if (bpf_setblen(fd, UNIX_BUFFER_SIZE) == -1)
 		CAMLreturn(Val_unit);
