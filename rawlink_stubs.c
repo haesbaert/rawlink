@@ -117,6 +117,28 @@ bpf_setimmediate(int fd, u_int opt)
 	return (r);
 }
 
+int
+bpf_setfilter(int fd, value vfilter)
+{
+	int r;
+	struct bpf_program prog;
+
+	if (vfilter == Val_int(0))
+		return (0);
+	prog.bf_len = caml_string_length(Field(vfilter, 0)) /
+	    sizeof(struct bpf_insn);
+	prog.bf_insns = (struct bpf_insn *) String_val(Field(vfilter, 0));
+
+	caml_enter_blocking_section();
+	r = ioctl(fd, BIOCSETF, &prog);
+	caml_leave_blocking_section();
+
+	if (r == -1)
+		uerror("bpf_setfilter", Nothing);
+
+	return (r);
+}
+
 CAMLprim value
 caml_rawlink_read(value vfd)
 {
@@ -171,7 +193,7 @@ again:
 }
 
 CAMLprim value
-caml_rawlink_open(value vifname)
+caml_rawlink_open(value vfilter, value vifname)
 {
 	CAMLparam0();
 	int fd;
@@ -181,6 +203,8 @@ caml_rawlink_open(value vifname)
 	if (bpf_seesent(fd, 0) == -1)
 		CAMLreturn(Val_unit);
 	if (bpf_setblen(fd, UNIX_BUFFER_SIZE) == -1)
+		CAMLreturn(Val_unit);
+	if (bpf_setfilter(fd, vfilter) == -1)
 		CAMLreturn(Val_unit);
 	if (bpf_setif(fd, String_val(vifname)) == -1)
 		CAMLreturn(Val_unit);

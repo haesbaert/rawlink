@@ -3,13 +3,12 @@ type t = {
   packets : string list ref;
 }
 
-external opensock: string -> Unix.file_descr = "caml_rawlink_open"
+external opensock: ?filter:string -> string -> Unix.file_descr = "caml_rawlink_open"
 external readsock: Unix.file_descr -> string list = "caml_rawlink_read"
+external dhcpfilter: unit -> string = "caml_dhcp_filter"
 
-let open_link ifname = {
-  fd = opensock ifname;
-  packets = ref []
-}
+let open_link ?filter ifname =
+  { fd = opensock ?filter:filter ifname; packets = ref [] }
 
 let close_link t = Unix.close t.fd
 

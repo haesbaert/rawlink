@@ -5,7 +5,7 @@ type t = {
   packets : string list ref;
 }
 
-external opensock: string -> Unix.file_descr = "caml_rawlink_open"
+external opensock: ?filter:string -> string -> Unix.file_descr = "caml_rawlink_open"
 external readsock: Unix.file_descr -> string list = "caml_rawlink_read"
 
 let readsock_lwt fd =
@@ -14,8 +14,8 @@ let readsock_lwt fd =
   | false -> Lwt_unix.wrap_syscall Lwt_unix.Read fd
                (fun () -> readsock (Lwt_unix.unix_file_descr fd))
 
-let open_link ifname =
-  let fd = Lwt_unix.of_unix_file_descr (opensock ifname) in
+let open_link ?filter ifname =
+  let fd = Lwt_unix.of_unix_file_descr (opensock ?filter:filter ifname) in
   let () = Lwt_unix.set_blocking fd false in
   { fd; packets = ref [] }
 
