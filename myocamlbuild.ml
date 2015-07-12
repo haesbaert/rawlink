@@ -19,6 +19,15 @@ dispatch begin function
   | After_rules ->
     pflag ["ocaml";"compile";] "ppopt" (fun s -> S [A"-ppopt"; A s]);
     pflag ["ocaml";"ocamldep";] "ppopt" (fun s -> S [A"-ppopt"; A s]);
-    pdep ["link"] "linkdep" (fun param -> [param])
+    pdep ["link"] "linkdep" (fun param -> [param]);
+    (* Linking generated stubs *)
+    dep ["ocaml"; "link"; "byte"; "library"; "use_rawlink_stubs"]
+      ["dllrawlink_stubs"-.-(!Options.ext_dll)];
+    flag ["ocaml"; "link"; "byte"; "library"; "use_rawlink_stubs"] &
+    S[A"-dllib"; A"-lrawlink_stubs"];
+    dep ["ocaml"; "link"; "native"; "library"; "use_rawlink_stubs"]
+      ["librawlink_stubs"-.-(!Options.ext_lib)];
+    flag ["ocaml"; "link"; "native"; "library"; "use_rawlink_stubs"] &
+      S[A"-cclib"; A"-lrawlink_stubs"];
   | _ -> ()
 end;;

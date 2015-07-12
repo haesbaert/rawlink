@@ -1,6 +1,8 @@
 lib: [
   "META"		{"META"}
 
+  "_build/librawlink_stubs.a"    {"librawlink_stubs.a"}
+
   "_build/rawlink.a"    {"rawlink.a"}
   "_build/rawlink.cma"  {"rawlink.cma"}
   "_build/rawlink.cmi"  {"rawlink.cmi"}

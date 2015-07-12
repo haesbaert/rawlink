@@ -1,7 +1,7 @@
 version = "0.1"
 description = "Rawlink is a portable interface to BPF/AF_SOCKET"
 requires = "unix"
-archive(byte) = "rawlkin.cma"
+archive(byte) = "rawlink.cma"
 archive(byte, plugin) = "rawlink.cma"
 archive(native) = "rawlink.cmxa"
 archive(native, plugin) = "rawlink.cmxs"
