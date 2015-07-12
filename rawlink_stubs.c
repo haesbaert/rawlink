@@ -171,7 +171,7 @@ again:
 }
 
 CAMLprim value
-caml_rawlink_open(char *ifname)
+caml_rawlink_open(value vifname)
 {
 	CAMLparam0();
 	int fd;
@@ -182,7 +182,7 @@ caml_rawlink_open(char *ifname)
 		CAMLreturn(Val_unit);
 	if (bpf_setblen(fd, UNIX_BUFFER_SIZE) == -1)
 		CAMLreturn(Val_unit);
-	if (bpf_setif(fd, ifname) == -1)
+	if (bpf_setif(fd, String_val(vifname)) == -1)
 		CAMLreturn(Val_unit);
 	if (bpf_setimmediate(fd, 1) == -1)
 		CAMLreturn(Val_unit);
