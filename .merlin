@@ -1,7 +1,4 @@
 S .
 B _build
 PKG lwt
-PKG cstruct
-PKG ipaddr
-PKG tuntap
 EXT nonrec
