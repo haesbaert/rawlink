@@ -1,23 +1,23 @@
 lib: [
-  "META"		{"META"}
+  "lib/META"                       {"META"}
 
-  "_build/librawlink_stubs.a"    {"librawlink_stubs.a"}
+  "_build/lib/librawlink_stubs.a"  {"librawlink_stubs.a"}
 
-  "_build/rawlink.a"    {"rawlink.a"}
-  "_build/rawlink.cma"  {"rawlink.cma"}
-  "_build/rawlink.cmi"  {"rawlink.cmi"}
-  "_build/rawlink.cmt"  {"rawlink.cmt"}
-  "_build/rawlink.cmti" {"rawlink.cmti"}
-  "_build/rawlink.cmx"  {"rawlink.cmx"}
-  "_build/rawlink.cmxa" {"rawlink.cmxa"}
-  "_build/rawlink.mli"  {"rawlink.mli"}
+  "_build/lib/rawlink.a"           {"rawlink.a"}
+  "_build/lib/rawlink.cma"         {"rawlink.cma"}
+  "_build/lib/rawlink.cmi"         {"rawlink.cmi"}
+  "_build/lib/rawlink.cmt"         {"rawlink.cmt"}
+  "_build/lib/rawlink.cmti"        {"rawlink.cmti"}
+  "_build/lib/rawlink.cmx"         {"rawlink.cmx"}
+  "_build/lib/rawlink.cmxa"        {"rawlink.cmxa"}
+  "_build/lib/rawlink.mli"         {"rawlink.mli"}
 
-  "_build/lwt_rawlink.a"    {"lwt_rawlink.a"}
-  "_build/lwt_rawlink.cma"  {"lwt_rawlink.cma"}
-  "_build/lwt_rawlink.cmi"  {"lwt_rawlink.cmi"}
-  "_build/lwt_rawlink.cmt"  {"lwt_rawlink.cmt"}
-  "_build/lwt_rawlink.cmti" {"lwt_rawlink.cmti"}
-  "_build/lwt_rawlink.cmx"  {"lwt_rawlink.cmx"}
-  "_build/lwt_rawlink.cmxa" {"lwt_rawlink.cmxa"}
-  "_build/lwt_rawlink.mli"  {"lwt_rawlink.mli"}
+  "_build/lib/lwt_rawlink.a"       {"lwt_rawlink.a"}
+  "_build/lib/lwt_rawlink.cma"     {"lwt_rawlink.cma"}
+  "_build/lib/lwt_rawlink.cmi"     {"lwt_rawlink.cmi"}
+  "_build/lib/lwt_rawlink.cmt"     {"lwt_rawlink.cmt"}
+  "_build/lib/lwt_rawlink.cmti"    {"lwt_rawlink.cmti"}
+  "_build/lib/lwt_rawlink.cmx"     {"lwt_rawlink.cmx"}
+  "_build/lib/lwt_rawlink.cmxa"    {"lwt_rawlink.cmxa"}
+  "_build/lib/lwt_rawlink.mli"     {"lwt_rawlink.mli"}
 ]

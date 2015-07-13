@@ -1,4 +1,5 @@
 S .
+S lib
 B _build
 PKG lwt
 EXT nonrec

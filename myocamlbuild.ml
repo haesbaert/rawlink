@@ -22,11 +22,12 @@ dispatch begin function
     pdep ["link"] "linkdep" (fun param -> [param]);
     (* Linking generated stubs *)
     dep ["ocaml"; "link"; "byte"; "library"; "use_rawlink_stubs"]
-      ["dllrawlink_stubs"-.-(!Options.ext_dll)];
+      ["lib/dllrawlink_stubs"-.-(!Options.ext_dll)];
     flag ["ocaml"; "link"; "byte"; "library"; "use_rawlink_stubs"] &
     S[A"-dllib"; A"-lrawlink_stubs"];
+
     dep ["ocaml"; "link"; "native"; "library"; "use_rawlink_stubs"]
-      ["librawlink_stubs"-.-(!Options.ext_lib)];
+      ["lib/librawlink_stubs"-.-(!Options.ext_lib)];
     flag ["ocaml"; "link"; "native"; "library"; "use_rawlink_stubs"] &
       S[A"-cclib"; A"-lrawlink_stubs"];
   | _ -> ()
