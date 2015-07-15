@@ -194,7 +194,7 @@ again:
 CAMLprim value
 caml_rawlink_open(value vfilter, value vifname)
 {
-	CAMLparam0();
+	CAMLparam2(vfilter, vifname);
 	int fd;
 
 	if ((fd = bpf_open()) == -1)
