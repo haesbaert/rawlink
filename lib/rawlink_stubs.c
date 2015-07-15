@@ -14,12 +14,28 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#ifdef __linux__
+#define USE_AF_PACKET
+#else
+#define USE_BPF /* Best bet */
+#endif
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 
+#ifdef USE_AF_PACKET
+#include <linux/if_packet.h>
+#include <net/ethernet.h>
+#endif	/* USE_AF_PACKET */
+
+#ifdef USE_BPF
 #include <net/bpf.h>
+#endif	/* USE_BPF */
+
 #include <net/if.h>
+
+#include <arpa/inet.h>
 
 #include <errno.h>
 #include <stdio.h>
@@ -36,6 +52,7 @@
 #include "caml/custom.h"
 #include "caml/bigarray.h"
 
+#ifdef USE_BPF
 int
 bpf_open(void)
 {
@@ -215,3 +232,83 @@ caml_rawlink_open(value vfilter, value vifname)
 
 	CAMLreturn (Val_int(fd));
 }
+
+#endif	/* USE_BPF */
+
+#ifdef USE_AF_PACKET
+int
+af_packet_open(void)
+{
+	int fd;
+
+	enter_blocking_section();
+	fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+	leave_blocking_section();
+
+	if (fd == -1)
+		uerror("af_packet_open", Nothing);
+
+	return (fd);
+}
+
+int
+af_packet_setif(int fd, char *ifname)
+{
+	int r;
+
+	enter_blocking_section();
+	r = setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, ifname,
+	    strlen(ifname));;
+	leave_blocking_section();
+
+	if (r == -1)
+		uerror("af_packet_setif", Nothing);
+
+	return (r);
+}
+
+CAMLprim value
+caml_rawlink_read(value vfd)
+{
+	CAMLparam1(vfd);
+	CAMLlocal2(v, vs);
+	char buf[UNIX_BUFFER_SIZE];
+	ssize_t n;
+	int fd = Int_val(vfd);
+
+again:
+	caml_enter_blocking_section();
+	n = read(fd, buf, sizeof(buf));
+	caml_leave_blocking_section();
+
+	if (n == -1) {
+		if (errno == EAGAIN)
+			goto again;
+		CAMLreturn (Val_unit);
+	}
+
+	vs = caml_alloc_string(n);
+	memcpy(String_val(vs), buf, n);
+
+	v = caml_alloc_small(2, 0);
+	Field(v, 0) = vs;
+	Field(v, 1) = Val_int(0);
+
+	CAMLreturn (v);
+}
+
+CAMLprim value
+caml_rawlink_open(value vfilter, value vifname)
+{
+	CAMLparam2(vfilter, vifname);
+	int fd;
+
+	if ((fd = af_packet_open()) == -1)
+		CAMLreturn (Val_unit);
+	if (af_packet_setif(fd, String_val(vifname)) == -1)
+		CAMLreturn (Val_unit);
+
+	CAMLreturn (Val_int(fd));
+}
+
+#endif	/* USE_AF_PACKET */
