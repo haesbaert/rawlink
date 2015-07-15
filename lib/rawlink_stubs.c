@@ -142,7 +142,7 @@ CAMLprim value
 caml_rawlink_read(value vfd)
 {
 	CAMLparam1(vfd);
-	CAMLlocal3(vtail, vprevtail, vhead);
+	CAMLlocal4(vtail, vprevtail, vhead, vs);
 	struct bpf_hdr *hp;
 	char buf[UNIX_BUFFER_SIZE], *p, *eh;
 	ssize_t n;
@@ -170,10 +170,13 @@ again:
 		if (hp->bh_caplen != hp->bh_datalen)
 			continue;
 
+		/* Copy the string */
+		vs = caml_alloc_string(hp->bh_caplen);
+		memcpy(String_val(vs), p, hp->bh_caplen);
+
 		/* Create the new tail */
 		vtail = caml_alloc_small(2, 0);
-		Field(vtail, 0) = caml_alloc_string(hp->bh_caplen);
-		memcpy(String_val(Field(vtail, 0)), p, hp->bh_caplen);
+		Field(vtail, 0) = vs;
 		Field(vtail, 1) = Val_int(0);
 
 		/* If not the first element... */
