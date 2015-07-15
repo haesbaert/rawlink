@@ -20,7 +20,6 @@
 
 #include <net/bpf.h>
 #include <net/if.h>
-#include <net/if_dl.h>
 
 #include <errno.h>
 #include <stdio.h>
