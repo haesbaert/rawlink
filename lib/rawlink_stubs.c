@@ -258,7 +258,7 @@ af_packet_setif(int fd, char *ifname)
 
 	enter_blocking_section();
 	r = setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, ifname,
-	    strlen(ifname));;
+	    strlen(ifname));
 	leave_blocking_section();
 
 	if (r == -1)
