@@ -26,6 +26,7 @@
 
 #ifdef USE_AF_PACKET
 #include <linux/if_packet.h>
+#include <linux/filter.h>
 #include <net/ethernet.h>
 #endif	/* USE_AF_PACKET */
 
@@ -267,6 +268,29 @@ af_packet_setif(int fd, char *ifname)
 	return (r);
 }
 
+int
+af_packet_setfilter(int fd, value vfilter)
+{
+	int r;
+	struct sock_fprog prog;
+
+	if (vfilter == Val_int(0))
+		return (0);
+
+	prog.len = caml_string_length(Field(vfilter, 0)) /
+	    sizeof(struct sock_filter);
+	prog.filter = (struct sock_filter *) String_val(Field(vfilter, 0));
+
+	caml_enter_blocking_section();
+	r = setsockopt(fd, SOL_SOCKET, SO_ATTACH_FILTER, &prog, sizeof(prog));
+	caml_leave_blocking_section();
+
+	if (r == -1)
+		uerror("af_packet_setfilter", Nothing);
+
+	return (r);
+}
+
 CAMLprim value
 caml_rawlink_read(value vfd)
 {
@@ -305,6 +329,8 @@ caml_rawlink_open(value vfilter, value vifname)
 
 	if ((fd = af_packet_open()) == -1)
 		CAMLreturn (Val_unit);
+	if (af_packet_setfilter(fd, vfilter) == -1)
+		CAMLreturn(Val_unit);
 	if (af_packet_setif(fd, String_val(vifname)) == -1)
 		CAMLreturn (Val_unit);
 
