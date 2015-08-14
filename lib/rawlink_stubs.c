@@ -24,10 +24,11 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 
+#include <net/ethernet.h>
+
 #ifdef USE_AF_PACKET
 #include <linux/if_packet.h>
 #include <linux/filter.h>
-#include <net/ethernet.h>
 #endif	/* USE_AF_PACKET */
 
 #ifdef USE_BPF
@@ -54,6 +55,9 @@
 #include "caml/bigarray.h"
 
 #ifdef USE_BPF
+
+#define FILTER bpf_insn
+
 int
 bpf_open(void)
 {
@@ -237,6 +241,9 @@ caml_rawlink_open(value vfilter, value vifname)
 #endif	/* USE_BPF */
 
 #ifdef USE_AF_PACKET
+
+#define FILTER sock_filter
+
 int
 af_packet_open(void)
 {
@@ -338,3 +345,42 @@ caml_rawlink_open(value vfilter, value vifname)
 }
 
 #endif	/* USE_AF_PACKET */
+
+/* Filters */
+CAMLprim value
+caml_dhcp_filter(value vunit)
+{
+	CAMLparam0();
+	CAMLlocal1(vfilter);
+	struct FILTER dhcp_bpf_filter[] = {
+		/* Make sure this is an IP packet... */
+		BPF_STMT (BPF_LD + BPF_H + BPF_ABS, 12),
+		BPF_JUMP (BPF_JMP + BPF_JEQ + BPF_K, ETHERTYPE_IP, 0, 8),
+
+		/* Make sure it's a UDP packet... */
+		BPF_STMT (BPF_LD + BPF_B + BPF_ABS, 23),
+		BPF_JUMP (BPF_JMP + BPF_JEQ + BPF_K, IPPROTO_UDP, 0, 6),
+
+		/* Make sure this isn't a fragment... */
+		BPF_STMT(BPF_LD + BPF_H + BPF_ABS, 20),
+		BPF_JUMP(BPF_JMP + BPF_JSET + BPF_K, 0x1fff, 4, 0),
+
+		/* Get the IP header length... */
+		BPF_STMT (BPF_LDX + BPF_B + BPF_MSH, 14),
+
+		/* Make sure it's to the right port... */
+		BPF_STMT (BPF_LD + BPF_H + BPF_IND, 16),
+		BPF_JUMP (BPF_JMP + BPF_JEQ + BPF_K, 67, 0, 1), /* patch */
+
+		/* If we passed all the tests, ask for the whole packet. */
+		BPF_STMT(BPF_RET+BPF_K, (u_int)-1),
+
+		/* Otherwise, drop it. */
+		BPF_STMT(BPF_RET+BPF_K, 0),
+	};
+
+	vfilter = caml_alloc_string(sizeof(dhcp_bpf_filter));
+	memcpy(String_val(vfilter), dhcp_bpf_filter, sizeof(dhcp_bpf_filter));
+
+	CAMLreturn (vfilter);
+}

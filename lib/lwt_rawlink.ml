@@ -7,6 +7,7 @@ type t = {
 
 external opensock: ?filter:string -> string -> Unix.file_descr = "caml_rawlink_open"
 external readsock: Unix.file_descr -> string list = "caml_rawlink_read"
+external dhcp_filter: unit -> string = "caml_dhcp_filter"
 
 let readsock_lwt fd =
   Lwt_unix.blocking fd >>= function
