@@ -194,7 +194,7 @@ again:
 
 		/* Copy the string */
 		vs = caml_alloc_string(hp->bh_caplen);
-		memcpy(String_val(vs), p, hp->bh_caplen);
+		memcpy(String_val(vs), p + hp->bh_hdrlen, hp->bh_caplen);
 
 		/* Create the new tail */
 		vtail = caml_alloc_small(2, 0);
