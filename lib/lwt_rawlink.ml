@@ -33,3 +33,11 @@ let rec get_packet t =
 let get_packet_list t = match !(t.packets) with
   | [] -> readsock_lwt t.fd
   | packets -> t.packets := []; Lwt.return packets
+
+let put_packet t b =
+  let len = Bytes.length b in
+  let n = Lwt_unix.write t.fd b 0 len in
+  if n <> (Lwt.return len) then
+    Lwt.fail (Unix.Unix_error(Unix.ENOBUFS, "put_packet", ""))
+  else
+    Lwt.return_unit
