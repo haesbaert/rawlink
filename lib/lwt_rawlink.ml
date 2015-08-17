@@ -36,8 +36,8 @@ let get_packet_list t = match !(t.packets) with
 
 let put_packet t b =
   let len = Bytes.length b in
-  let n = Lwt_unix.write t.fd b 0 len in
-  if n <> (Lwt.return len) then
+  Lwt_unix.write t.fd b 0 len >>= function
+  | n when n != len ->
     Lwt.fail (Unix.Unix_error(Unix.ENOBUFS, "put_packet", ""))
-  else
+  | n ->
     Lwt.return_unit
