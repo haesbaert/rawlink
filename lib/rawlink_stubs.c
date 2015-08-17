@@ -171,14 +171,12 @@ caml_rawlink_read(value vfd)
 	int fd = Int_val(vfd);
 
 	bzero(buf, sizeof(buf));
-again:
+
 	caml_enter_blocking_section();
 	n = read(fd, buf, sizeof(buf));
 	caml_leave_blocking_section();
 
 	if (n == -1) {
-		if (errno == EAGAIN)
-			goto again;
 		uerror("read", Nothing);
 		CAMLreturn (Val_unit);
 	}
