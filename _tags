@@ -1,5 +1,7 @@
-true: debug, bin_annot, strict_sequence
+true: debug, bin_annot, strict_sequence, syntax(camlp4o), syntax(pa_cstruct)
+true: package(cstruct), package(cstruct.syntax)
 true: package(lwt.unix), package(lwt.syntax), ppopt(-lwt-debug)
 true: use_rawlink_stubs
+
 <*.byte>: linkdep(rawlink_stubs.o), custom
 <*.native>: linkdep(rawlink_stubs.o)

@@ -161,60 +161,6 @@ bpf_setfilter(int fd, value vfilter)
 }
 
 CAMLprim value
-caml_rawlink_read(value vfd)
-{
-	CAMLparam1(vfd);
-	CAMLlocal4(vtail, vprevtail, vhead, vs);
-	struct bpf_hdr *hp;
-	char buf[UNIX_BUFFER_SIZE], *p, *eh;
-	ssize_t n;
-	int fd = Int_val(vfd);
-
-	bzero(buf, sizeof(buf));
-
-	caml_enter_blocking_section();
-	n = read(fd, buf, sizeof(buf));
-	caml_leave_blocking_section();
-
-	if (n == -1) {
-		uerror("read", Nothing);
-		CAMLreturn (Val_unit);
-	}
-	vhead = vprevtail = vtail = Val_int(0);
-
-	p = buf;
-	hp = (struct bpf_hdr *) p;
-	eh = p + hp->bh_hdrlen;
-
-	while (p < (buf + n)) {
-		if (hp->bh_caplen != hp->bh_datalen)
-			continue;
-
-		/* Copy the string */
-		vs = caml_alloc_string(hp->bh_caplen);
-		memcpy(String_val(vs), p + hp->bh_hdrlen, hp->bh_caplen);
-
-		/* Create the new tail */
-		vtail = caml_alloc_small(2, 0);
-		Field(vtail, 0) = vs;
-		Field(vtail, 1) = Val_int(0);
-
-		/* If not the first element... */
-		if (p != buf)
-			caml_modify(&Field(vprevtail, 1), vtail);
-		else
-			vhead = vtail;
-
-		vprevtail = vtail;
-		p += BPF_WORDALIGN(hp->bh_hdrlen + hp->bh_caplen);
-		hp = (struct bpf_hdr *) p;
-		eh = p + hp->bh_hdrlen;
-	}
-
-	CAMLreturn (vhead);
-}
-
-CAMLprim value
 caml_rawlink_open(value vfilter, value vifname)
 {
 	CAMLparam2(vfilter, vifname);
@@ -234,6 +180,21 @@ caml_rawlink_open(value vfilter, value vifname)
 		CAMLreturn(Val_unit);
 
 	CAMLreturn (Val_int(fd));
+}
+
+CAMLprim value
+caml_bpf_align(value va, value vb)
+{
+	CAMLparam2(va, vb);
+	CAMLlocal1(v);
+	uint32_t a, b;
+
+	a = Int_val(va);
+	b = Int_val(vb);
+
+	v = Val_int(BPF_WORDALIGN (a + b));
+
+	CAMLreturn (v);
 }
 
 #endif	/* USE_BPF */
@@ -297,36 +258,6 @@ af_packet_setfilter(int fd, value vfilter)
 }
 
 CAMLprim value
-caml_rawlink_read(value vfd)
-{
-	CAMLparam1(vfd);
-	CAMLlocal2(v, vs);
-	char buf[UNIX_BUFFER_SIZE];
-	ssize_t n;
-	int fd = Int_val(vfd);
-
-again:
-	caml_enter_blocking_section();
-	n = read(fd, buf, sizeof(buf));
-	caml_leave_blocking_section();
-
-	if (n == -1) {
-		if (errno == EAGAIN)
-			goto again;
-		CAMLreturn (Val_unit);
-	}
-
-	vs = caml_alloc_string(n);
-	memcpy(String_val(vs), buf, n);
-
-	v = caml_alloc_small(2, 0);
-	Field(v, 0) = vs;
-	Field(v, 1) = Val_int(0);
-
-	CAMLreturn (v);
-}
-
-CAMLprim value
 caml_rawlink_open(value vfilter, value vifname)
 {
 	CAMLparam2(vfilter, vifname);
@@ -342,8 +273,26 @@ caml_rawlink_open(value vfilter, value vifname)
 	CAMLreturn (Val_int(fd));
 }
 
+/* dummy, not called */
+CAMLprim value
+caml_bpf_align(value va, value vb)
+{
+	CAMLparam2(va, vb);
+	CAMLreturn (Val_int(0));
+}
+
 #endif	/* USE_AF_PACKET */
 
+CAMLprim value
+caml_driver(value vunit)
+{
+	CAMLparam0();
+#ifdef AF_PACKET
+	CAMLreturn (Val_int(0));
+#else
+	CAMLreturn (Val_int(1));
+#endif
+}
 /* Filters */
 CAMLprim value
 caml_dhcp_filter(value vunit)
