@@ -11,5 +11,5 @@ build: [
   ["sh" "build.sh"]
 ]
 depends: [
-  "ocamlfind" "lwt" {build}
+  "ocamlfind" "lwt" "cstruct" {build}
 ]
