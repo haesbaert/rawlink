@@ -14,10 +14,32 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *)
 
+(** A portable API to send and receive raw packets.
+
+    There are times when one needs to construct the full ethernet frame to
+    send/receive. Most unixes support BPF (BSD Packet Filter) to achieve it, but
+    linux provides the same functionality via AF_SOCKET. This API works with
+    either a BPF or AF_SOCKET backend, so it should work on every usable UNIX,
+    as well as linux out there. The module is designed to work with Lwt threads.
+*)
+
 type t
 
 val open_link : ?filter:string -> string -> t
+(** [open_link ~filter interface]. Creates a rawlink on the specified
+    [interface], a BPF program [filter] can be passed to filter out incoming
+    packets. *)
+
 val close_link : t -> unit Lwt.t
+(** [close_link]. Closes a rawlink. *)
+
 val read_packet : t -> Cstruct.t Lwt.t
+(** [read_packet t]. Reads a full packet, may raise Unix.Unix_error. *)
+
 val send_packet : t -> Cstruct.t -> unit Lwt.t
+(** [send_packet t]. Sends a full packet, may raise Unix.Unix_error. *)
+
 val dhcp_filter : unit -> string
+(** [dhcp_filter]. Returns a BPF program suitable to be passed in
+    [open_link ~filter], it accepts UDP packets destined to
+    port 68 (DHCP server). *)
