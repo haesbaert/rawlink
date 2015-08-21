@@ -47,7 +47,7 @@ let rec read_packet t =
       >>= (fun n ->
           if n = 0 then
             failwith "Link socket closed";
-          t.packets := Rawlink.bpf_split_buffer t.buffer;
+          t.packets := Rawlink.bpf_split_buffer t.buffer n;
           read_packet t)
     | AF_PACKET ->
       Lwt_bytes.read t.fd t.buffer.Cstruct.buffer 0 t.buffer.Cstruct.len

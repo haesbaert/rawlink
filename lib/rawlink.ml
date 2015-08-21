@@ -46,7 +46,7 @@ let send_packet t buf =
   else if n <> len then
     raise (Unix.Unix_error(Unix.ENOBUFS, "send_packet: short write", ""))
 
-let bpf_split_buffer buffer =
+let bpf_split_buffer buffer len =
   let open Rawlink_cstruct in
   let rec loop buffer n packets =
     if n <= 0 then
@@ -63,7 +63,7 @@ let bpf_split_buffer buffer =
         Cstruct.blit buffer bh_hdrlen pkt 0 bh_datalen;
         loop (Cstruct.shift buffer nextoff) (n - nextoff) (pkt :: packets)
   in
-  loop buffer (Cstruct.len buffer) []
+  loop buffer len []
 
 let rec read_packet t =
   match !(t.packets) with
@@ -74,7 +74,7 @@ let rec read_packet t =
       let n = unix_bytes_read t.fd t.buffer.Cstruct.buffer 0 t.buffer.Cstruct.len in
       if n = 0 then
         failwith "Link socket closed";
-      t.packets := bpf_split_buffer t.buffer;
+      t.packets := bpf_split_buffer t.buffer n;
       read_packet t
     | AF_PACKET ->
       let n = unix_bytes_read t.fd t.buffer.Cstruct.buffer 0 t.buffer.Cstruct.len in

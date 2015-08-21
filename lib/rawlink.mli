@@ -46,4 +46,4 @@ val dhcp_filter : unit -> string
     port 68 (DHCP server). *)
 
 (** internal use only, exported to use from Lwt_rawlink. *)
-val bpf_split_buffer : Cstruct.t -> Cstruct.t list
+val bpf_split_buffer : Cstruct.t -> int -> Cstruct.t list
