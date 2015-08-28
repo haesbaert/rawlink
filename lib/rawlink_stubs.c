@@ -61,7 +61,7 @@
 int
 bpf_open(void)
 {
-	int i, fd;
+	int i, fd = -1;
 	char path[16];
 
 	for (i = 0; i < 10; i++) {
@@ -72,9 +72,12 @@ bpf_open(void)
 		if (fd == -1) {
 			if (errno == EBUSY)
 				continue;
-			uerror("bpf_open", Nothing);
+			break;
 		}
 	}
+
+	if (fd == -1)
+		uerror("bpf_open", Nothing);
 
 	return (fd);
 }
