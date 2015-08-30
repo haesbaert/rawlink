@@ -69,11 +69,9 @@ bpf_open(void)
 		enter_blocking_section();
 		fd = open(path, O_RDWR);
 		leave_blocking_section();
-		if (fd == -1) {
-			if (errno == EBUSY)
-				continue;
-			break;
-		}
+		if (fd == -1 && errno == EBUSY)
+			continue;
+		break;
 	}
 
 	if (fd == -1)
