@@ -224,15 +224,26 @@ af_packet_open(void)
 int
 af_packet_setif(int fd, char *ifname)
 {
-	int r;
+	int r, ifidx;
+	struct sockaddr_ll sll;
+
+	ifidx = if_nametoindex(ifname);
+	if (ifidx == 0) {
+		uerror("af_packet_setif: if_nametoindex", Nothing);
+		return (-1);
+	}
+
+	bzero(&sll, sizeof(sll));
+	sll.sll_family = AF_PACKET;
+	sll.sll_ifindex = ifidx;
+	sll.sll_protocol = htons(ETH_P_ALL);
 
 	enter_blocking_section();
-	r = setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, ifname,
-	    strlen(ifname));
+	r = bind(fd, (struct sockaddr *) &sll, sizeof(sll));
 	leave_blocking_section();
 
 	if (r == -1)
-		uerror("af_packet_setif", Nothing);
+		uerror("af_packet_setif: bind", Nothing);
 
 	return (r);
 }
