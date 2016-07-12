@@ -1,6 +1,6 @@
-version = "0.1"
+version = "0.4"
 description = "Rawlink is a portable interface to BPF/AF_SOCKET"
-requires = "unix lwt.unix lwt cstruct cstruct.syntax"
+requires = "unix lwt.unix lwt cstruct cstruct.ppx"
 archive(byte) = "rawlink.cma"
 archive(byte, plugin) = "rawlink.cma"
 archive(native) = "rawlink.cmxa"
