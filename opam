@@ -14,5 +14,6 @@ depends: [
   "cstruct" {>= "1.9"}
   "ocamlbuild" {build}
 ]
+depexts: [[ ["alpine"] ["linux-headers"] ]]
 available: [ocaml-version >= "4.02.3"]
 
