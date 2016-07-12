@@ -2,6 +2,8 @@
 
 A portable library to read and write raw packets.
 
+[![Build Status](https://travis-ci.org/haesbaert/rawlink.png)](https://travis-ci.org/haesbaert/rawlink)
+
 Rawlink is an ocaml library for sending and receiving raw packets at the link
 layer level. Sometimes you need to have full control of the packet, including
 building the full ethernet frame.
