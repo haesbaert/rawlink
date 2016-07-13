@@ -14,6 +14,15 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *)
 
+[%%cstruct
+type bpf_hdr = {
+	bh_sec: uint32_t;
+	bh_usec: uint32_t;
+	bh_caplen: uint32_t;
+	bh_datalen: uint32_t;
+	bh_hdrlen: uint16_t;
+} [@@little_endian]]
+
 type t = {
   fd : Unix.file_descr;
   packets : Cstruct.t list ref;
@@ -47,7 +56,6 @@ let send_packet t buf =
     raise (Unix.Unix_error(Unix.ENOBUFS, "send_packet: short write", ""))
 
 let bpf_split_buffer buffer len =
-  let open Rawlink_cstruct in
   let rec loop buffer n packets =
     if n <= 0 then
       List.rev packets
@@ -70,7 +78,6 @@ let rec read_packet t =
   | hd :: tl -> t.packets := tl; hd
   | [] -> match driver () with
     | BPF ->
-      let open Rawlink_cstruct in
       let n = unix_bytes_read t.fd t.buffer.Cstruct.buffer 0 t.buffer.Cstruct.len in
       if n = 0 then
         failwith "Link socket closed";

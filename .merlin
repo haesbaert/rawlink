@@ -3,4 +3,4 @@ S lib
 B _build/lib
 PKG lwt
 PKG cstruct
-EXT nonrec
+PKG cstruct.ppx
