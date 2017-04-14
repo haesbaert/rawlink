@@ -1,6 +1,4 @@
-# Rawlink
-
-A portable library to read and write raw packets.
+## Rawlink - portable library to read and write raw packets.
 
 [![Build Status](https://travis-ci.org/haesbaert/rawlink.svg)](https://travis-ci.org/haesbaert/rawlink)
 

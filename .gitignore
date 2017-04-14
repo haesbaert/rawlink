@@ -1,4 +1,4 @@
 *.byte
 *.native
-*.cma
 _build
+rawlink.install

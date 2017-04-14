@@ -1,5 +1,0 @@
-lib/rawlink.cma
-lib/rawlink.cmxa
-lib/lwt_rawlink.cma
-lib/lwt_rawlink.cmxa
-lib/librawlink_stubs.a

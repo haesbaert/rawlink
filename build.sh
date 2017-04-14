@@ -15,4 +15,4 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
-ocamlbuild -no-links -use-ocamlfind all.otarget $@
+topkg build
