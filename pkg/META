@@ -1,10 +1,9 @@
 version = "%%VERSION_NUM%%"
 description = "Rawlink is a portable interface to BPF/AF_SOCKET"
-requires = "unix lwt.unix lwt cstruct cstruct.ppx"
+requires = "unix lwt.unix lwt cstruct"
 archive(byte) = "rawlink.cma"
 plugin(byte) = "rawlink.cma"
 archive(byte, plugin) = "rawlink.cma"
 archive(native) = "rawlink.cmxa"
 plugin(native) = "rawlink.cmxs"
 exists_if = "rawlink.cma"
-
