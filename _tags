@@ -1,5 +1,5 @@
 true: color(auto), debug, bin_annot, strict_sequence
-true: package(cstruct cstruct.ppx lwt.unix lwt.ppx)
+true: package(cstruct ppx_cstruct lwt.unix lwt.ppx)
 true: use_rawlink_stubs
 "lib": include
 <*.byte>: linkdep(rawlink_stubs.o), custom
