@@ -49,7 +49,7 @@ let close_link t = Unix.close t.fd
 
 let send_packet t buf =
   let len = Cstruct.len buf in
-  let n = Unix.write t.fd (Cstruct.to_string buf) 0 len in
+  let n = Unix.write t.fd (Cstruct.to_string buf |> Bytes.of_string) 0 len in
   if n = 0 then
     raise (Unix.Unix_error(Unix.EPIPE, "send_packet: socket closed", ""))
   else if n <> len then
