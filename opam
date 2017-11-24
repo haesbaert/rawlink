@@ -12,7 +12,7 @@ depends: [
   "ocamlfind" {build}
   "topkg" {build}
   "lwt" {>= "2.4.7"}
-  "cstruct" {>= "3.0.0"}
+  "cstruct" {>= "3.2.0"}
   "ppx_cstruct" {build}
   "ocamlbuild" {build}
 ]
