@@ -1,3 +1,8 @@
+## 0.6 (2017-11-24)
+
+* Support ocaml 4.06
+* Fix cstruct linking
+
 ## 0.5 (2017-04-16)
 
 * Convert to topkg
