@@ -19,15 +19,16 @@
 &nbsp;</div>
 <h1>Module <a href="type_Lwt_rawlink.html">Lwt_rawlink</a></h1>
 
-<pre><span class="keyword">module</span> Lwt_rawlink: <code class="code"><span class="keyword">sig</span></code> <a href="Lwt_rawlink.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-A portable API to send and receive raw packets.
-<p>
+<pre><span id="MODULELwt_rawlink"><span class="keyword">module</span> Lwt_rawlink</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Lwt_rawlink.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+<div class="info-desc">
+<p>A portable API to send and receive raw packets.</p>
 
-    There are times when one needs to construct the full ethernet frame to
+<p>There are times when one needs to construct the full ethernet frame to
     send/receive. Most unixes support BPF (BSD Packet Filter) to achieve it, but
     linux provides the same functionality via AF_SOCKET. This API works with
     either a BPF or AF_SOCKET backend, so it should work on every usable UNIX,
-    as well as linux out there. The module is designed to work with Lwt threads.<br>
+    as well as linux out there. The module is designed to work with Lwt threads.</p>
+</div>
 </div>
 <hr width="100%">
 
@@ -35,26 +36,36 @@ A portable API to send and receive raw packets.
 
 
 <pre><span id="VALopen_link"><span class="keyword">val</span> open_link</span> : <code class="type">?filter:string -> string -> <a href="Lwt_rawlink.html#TYPEt">t</a></code></pre><div class="info ">
-<code class="code">open_link&nbsp;~filter&nbsp;interface</code>. Creates a rawlink on the specified
+<div class="info-desc">
+<p><code class="code">open_link&nbsp;~filter&nbsp;interface</code>. Creates a rawlink on the specified
     <code class="code">interface</code>, a BPF program <code class="code">filter</code> can be passed to filter out incoming
-    packets.<br>
+    packets.</p>
+</div>
 </div>
 
 <pre><span id="VALclose_link"><span class="keyword">val</span> close_link</span> : <code class="type"><a href="Lwt_rawlink.html#TYPEt">t</a> -> unit Lwt.t</code></pre><div class="info ">
-<code class="code">close_link</code>. Closes a rawlink.<br>
+<div class="info-desc">
+<p><code class="code">close_link</code>. Closes a rawlink.</p>
+</div>
 </div>
 
 <pre><span id="VALread_packet"><span class="keyword">val</span> read_packet</span> : <code class="type"><a href="Lwt_rawlink.html#TYPEt">t</a> -> Cstruct.t Lwt.t</code></pre><div class="info ">
-<code class="code">read_packet&nbsp;t</code>. Reads a full packet, may raise Unix.Unix_error.<br>
+<div class="info-desc">
+<p><code class="code">read_packet&nbsp;t</code>. Reads a full packet, may raise Unix.Unix_error.</p>
+</div>
 </div>
 
 <pre><span id="VALsend_packet"><span class="keyword">val</span> send_packet</span> : <code class="type"><a href="Lwt_rawlink.html#TYPEt">t</a> -> Cstruct.t -> unit Lwt.t</code></pre><div class="info ">
-<code class="code">send_packet&nbsp;t</code>. Sends a full packet, may raise Unix.Unix_error.<br>
+<div class="info-desc">
+<p><code class="code">send_packet&nbsp;t</code>. Sends a full packet, may raise Unix.Unix_error.</p>
+</div>
 </div>
 
 <pre><span id="VALdhcp_filter"><span class="keyword">val</span> dhcp_filter</span> : <code class="type">unit -> string</code></pre><div class="info ">
-<code class="code">dhcp_filter</code>. Returns a BPF program suitable to be passed in
+<div class="info-desc">
+<p><code class="code">dhcp_filter</code>. Returns a BPF program suitable to be passed in
     <code class="code">open_link&nbsp;~filter</code>, it accepts UDP packets destined to
-    port 68 (DHCP server).<br>
+    port 68 (DHCP server).</p>
+</div>
 </div>
 </body></html>
