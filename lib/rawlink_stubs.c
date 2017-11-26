@@ -35,6 +35,8 @@
 #include <net/bpf.h>
 #endif	/* USE_BPF */
 
+#include <netinet/in.h>
+
 #include <net/if.h>
 
 #include <arpa/inet.h>
