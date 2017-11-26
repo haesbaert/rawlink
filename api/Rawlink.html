@@ -19,64 +19,49 @@
 </div>
 <h1>Module <a href="type_Rawlink.html">Rawlink</a></h1>
 
-<pre><span id="MODULERawlink"><span class="keyword">module</span> Rawlink</span>: <code class="code"><span class="keyword">sig</span></code> <a href="Rawlink.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
-<div class="info-desc">
-<p>A portable API to send and receive raw packets.</p>
+<pre><span class="keyword">module</span> Rawlink: <code class="code"><span class="keyword">sig</span></code> <a href="Rawlink.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+A portable API to send and receive raw packets.
+<p>
 
-<p>There are times when one needs to construct the full ethernet frame to
+    There are times when one needs to construct the full ethernet frame to
     send/receive. Most unixes support BPF (BSD Packet Filter) to achieve it, but
     linux provides the same functionality via AF_SOCKET. This API works with
     either a BPF or AF_SOCKET backend, so it should work on every usable UNIX,
-    as well as linux out there.</p>
-</div>
+    as well as linux out there.<br>
 </div>
 <hr width="100%">
 
 <pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
 <div class="info ">
-<div class="info-desc">
-<p>Type of a rawlink.</p>
-</div>
+Type of a rawlink.<br>
 </div>
 
 
 <pre><span id="VALopen_link"><span class="keyword">val</span> open_link</span> : <code class="type">?filter:string -> string -> <a href="Rawlink.html#TYPEt">t</a></code></pre><div class="info ">
-<div class="info-desc">
-<p><code class="code">open_link&nbsp;~filter&nbsp;interface</code>. Creates a rawlink on the specified
+<code class="code">open_link&nbsp;~filter&nbsp;interface</code>. Creates a rawlink on the specified
     <code class="code">interface</code>, a BPF program <code class="code">filter</code> can be passed to filter out incoming
-    packets.</p>
-</div>
+    packets.<br>
 </div>
 
 <pre><span id="VALclose_link"><span class="keyword">val</span> close_link</span> : <code class="type"><a href="Rawlink.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
-<div class="info-desc">
-<p><code class="code">close_link</code>. Closes a rawlink.</p>
-</div>
+<code class="code">close_link</code>. Closes a rawlink.<br>
 </div>
 
 <pre><span id="VALread_packet"><span class="keyword">val</span> read_packet</span> : <code class="type"><a href="Rawlink.html#TYPEt">t</a> -> Cstruct.t</code></pre><div class="info ">
-<div class="info-desc">
-<p><code class="code">read_packet&nbsp;t</code>. Reads a full packet, may raise Unix.Unix_error.</p>
-</div>
+<code class="code">read_packet&nbsp;t</code>. Reads a full packet, may raise Unix.Unix_error.<br>
 </div>
 
 <pre><span id="VALsend_packet"><span class="keyword">val</span> send_packet</span> : <code class="type"><a href="Rawlink.html#TYPEt">t</a> -> Cstruct.t -> unit</code></pre><div class="info ">
-<div class="info-desc">
-<p><code class="code">send_packet&nbsp;t</code>. Sends a full packet, may raise Unix.Unix_error.</p>
-</div>
+<code class="code">send_packet&nbsp;t</code>. Sends a full packet, may raise Unix.Unix_error.<br>
 </div>
 
 <pre><span id="VALdhcp_filter"><span class="keyword">val</span> dhcp_filter</span> : <code class="type">unit -> string</code></pre><div class="info ">
-<div class="info-desc">
-<p><code class="code">dhcp_filter</code>. Returns a BPF program suitable to be passed in
+<code class="code">dhcp_filter</code>. Returns a BPF program suitable to be passed in
     <code class="code">open_link&nbsp;~filter</code>, it accepts UDP packets destined to
-    port 68 (DHCP server).</p>
-</div>
+    port 68 (DHCP server).<br>
 </div>
 
 <pre><span id="VALbpf_split_buffer"><span class="keyword">val</span> bpf_split_buffer</span> : <code class="type">Cstruct.t -> int -> Cstruct.t list</code></pre><div class="info ">
-<div class="info-desc">
-<p>internal use only, exported to use from Lwt_rawlink.</p>
-</div>
+internal use only, exported to use from Lwt_rawlink.<br>
 </div>
 </body></html>
