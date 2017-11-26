@@ -1,3 +1,7 @@
+## 0.7 (2017-11-26)
+
+* Fix FreeBSD compilation
+
 ## 0.6 (2017-11-24)
 
 * Support ocaml 4.06
