@@ -309,7 +309,7 @@ caml_driver(value vunit)
 }
 /* Filters */
 CAMLprim value
-caml_dhcp_filter(value vunit)
+caml_dhcp_server_filter(value vunit)
 {
 	CAMLparam0();
 	CAMLlocal1(vfilter);
@@ -332,6 +332,43 @@ caml_dhcp_filter(value vunit)
 		/* Make sure it's to the right port... */
 		BPF_STMT (BPF_LD + BPF_H + BPF_IND, 16),
 		BPF_JUMP (BPF_JMP + BPF_JEQ + BPF_K, 67, 0, 1), /* patch */
+
+		/* If we passed all the tests, ask for the whole packet. */
+		BPF_STMT(BPF_RET+BPF_K, (u_int)-1),
+
+		/* Otherwise, drop it. */
+		BPF_STMT(BPF_RET+BPF_K, 0),
+	};
+
+	vfilter = caml_alloc_string(sizeof(dhcp_bpf_filter));
+	memcpy(String_val(vfilter), dhcp_bpf_filter, sizeof(dhcp_bpf_filter));
+
+	CAMLreturn (vfilter);
+}
+CAMLprim value
+caml_dhcp_client_filter(value vunit)
+{
+	CAMLparam0();
+	CAMLlocal1(vfilter);
+	struct FILTER dhcp_bpf_filter[] = {
+		/* Make sure this is an IP packet... */
+		BPF_STMT (BPF_LD + BPF_H + BPF_ABS, 12),
+		BPF_JUMP (BPF_JMP + BPF_JEQ + BPF_K, ETHERTYPE_IP, 0, 8),
+
+		/* Make sure it's a UDP packet... */
+		BPF_STMT (BPF_LD + BPF_B + BPF_ABS, 23),
+		BPF_JUMP (BPF_JMP + BPF_JEQ + BPF_K, IPPROTO_UDP, 0, 6),
+
+		/* Make sure this isn't a fragment... */
+		BPF_STMT(BPF_LD + BPF_H + BPF_ABS, 20),
+		BPF_JUMP(BPF_JMP + BPF_JSET + BPF_K, 0x1fff, 4, 0),
+
+		/* Get the IP header length... */
+		BPF_STMT (BPF_LDX + BPF_B + BPF_MSH, 14),
+
+		/* Make sure it's to the right port... */
+		BPF_STMT (BPF_LD + BPF_H + BPF_IND, 16),
+		BPF_JUMP (BPF_JMP + BPF_JEQ + BPF_K, 68, 0, 1), /* patch */
 
 		/* If we passed all the tests, ask for the whole packet. */
 		BPF_STMT(BPF_RET+BPF_K, (u_int)-1),
