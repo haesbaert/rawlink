@@ -34,7 +34,8 @@ type driver =
   | BPF
 
 external opensock: ?filter:string -> string -> Unix.file_descr = "caml_rawlink_open"
-external dhcp_filter: unit -> string = "caml_dhcp_filter"
+external dhcp_server_filter: unit -> string = "caml_dhcp_server_filter"
+external dhcp_client_filter: unit -> string = "caml_dhcp_client_filter"
 external driver: unit -> driver = "caml_driver"
 external unix_bytes_read: Unix.file_descr -> Cstruct.buffer -> int -> int -> int =
   "lwt_unix_bytes_read"

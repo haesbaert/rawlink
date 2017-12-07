@@ -39,7 +39,12 @@ val read_packet : t -> Cstruct.t Lwt.t
 val send_packet : t -> Cstruct.t -> unit Lwt.t
 (** [send_packet t]. Sends a full packet, may raise Unix.Unix_error. *)
 
-val dhcp_filter : unit -> string
-(** [dhcp_filter]. Returns a BPF program suitable to be passed in
+val dhcp_server_filter : unit -> string
+(** [dhcp_server_filter]. Returns a BPF program suitable to be passed in
+    [open_link ~filter], it accepts UDP packets destined to
+    port 67 (DHCP client). *)
+
+val dhcp_client_filter : unit -> string
+(** [dhcp_client_filter]. Returns a BPF program suitable to be passed in
     [open_link ~filter], it accepts UDP packets destined to
     port 68 (DHCP server). *)
