@@ -1,3 +1,9 @@
+## 0.7 (2018-06-04)
+
+* Add a client for DHCP client port
+* Rename dhcp_filter to dhcp_server_filter
+* Fix compilation on POSIX-like systems by including netinet/in.h
+
 ## 0.6 (2017-11-24)
 
 * Support ocaml 4.06
