@@ -16,6 +16,7 @@ depends: [
   "ppx_cstruct" {build}
   "ocamlbuild" {build}
 ]
-depexts: [[ ["alpine"] ["linux-headers"] ]]
+depexts: [
+  ["linux-headers"] {os-distribution = "alpine"}
+]
 synopsis: "Portable library to read and write raw packets"
-
