@@ -1,7 +1,12 @@
 ## unreleased
 
-* Add a dhcp_client_filter for DHCP client port
-* Rename dhcp_filter to dhcp_server_filter
+This release splits the Lwt package into a separate
+`rawlink.lwt` ocamlfind package.
+
+* Add a `dhcp_client_filter` for DHCP client port
+* Rename `dhcp_filter` to `dhcp_server_filter`
+* Support Lwt 4.0 (#10 by @hannesm)
+* Port build system to Dune (@avsm)
 
 ## 0.7 (2017-11-26)
 

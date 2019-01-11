@@ -14,6 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *)
 
+[@@@warning "-32-37"]
+
 open Lwt.Infix
 
 type t = {
