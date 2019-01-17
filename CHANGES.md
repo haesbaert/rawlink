@@ -1,12 +1,14 @@
-## unreleased
+## v1.0 (2019-01-17)
 
 This release splits the Lwt package into a separate
-`rawlink.lwt` ocamlfind package.
+`rawlink.lwt` ocamlfind package.  Existing users of `Lwt_rawlink`
+can just rename the ocamlfind package `rawlink` to `rawlink.lwt`
+to get the previous functionality.
 
-* Add a `dhcp_client_filter` for DHCP client port
-* Rename `dhcp_filter` to `dhcp_server_filter`
+* Add a `dhcp_client_filter` for DHCP client port (#8 by @yomimono)
+* Rename `dhcp_filter` to `dhcp_server_filter` (#8 by @yomimono)
 * Support Lwt 4.0 (#10 by @hannesm)
-* Port build system to Dune (@avsm)
+* Port build system to Dune (#11 by @avsm)
 
 ## 0.7 (2017-11-26)
 
