@@ -5,8 +5,10 @@ license: "ISC"
 homepage: "https://github.com/haesbaert/rawlink"
 bug-reports: "https://github.com/haesbaert/rawlink/issues"
 dev-repo: "git+https://github.com/haesbaert/rawlink.git"
-doc: "https://haesbaert.github.io/rawlink/api"
-build: [ "ocaml" "pkg/pkg.ml" "build" "--pinned" "%{pinned}%" ]
+doc: "https://haesbaert.github.io/rawlink/"
+build: [
+  [ "dune" "subst" ] {pinned}
+  [ "dune" "build" "-p" name "-j" jobs ] ]
 depends: [
   "ocaml" {>= "4.03.0"}
   "dune" {build}
