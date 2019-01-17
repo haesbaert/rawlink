@@ -1,6 +1,0 @@
-S .
-S lib
-B _build/lib
-PKG lwt
-PKG cstruct
-PKG cstruct.ppx

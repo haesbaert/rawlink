@@ -14,6 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *)
 
+[@@@warning "-32-37"]
+
 [%%cstruct
 type bpf_hdr = {
 	bh_sec: uint32_t;
