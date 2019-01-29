@@ -1,5 +1,5 @@
 (*
- * Copyright (c) 2015 Christiano F. Haesbaert <haesbaert@haesbaert.org>
+ * Copyright (c) 2015-2022 Christiano F. Haesbaert <haesbaert@haesbaert.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -25,10 +25,11 @@
 
 type t
 
-val open_link : ?filter:string -> string -> t
-(** [open_link ~filter interface]. Creates a rawlink on the specified
-    [interface], a BPF program [filter] can be passed to filter out incoming
-    packets. *)
+val open_link : ?filter:string -> ?promisc:bool -> string -> t
+(** [open_link ~filter ~promisc interface]. Creates a rawlink on the
+    specified [interface], a BPF program [filter] can be passed to
+    filter out incoming packets. If [promisc] is true, sets [interface]
+    to promiscuous mode, defaults to false. *)
 
 val close_link : t -> unit Lwt.t
 (** [close_link]. Closes a rawlink. *)

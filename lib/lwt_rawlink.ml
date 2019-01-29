@@ -1,5 +1,5 @@
 (*
- * Copyright (c) 2015 Christiano F. Haesbaert <haesbaert@haesbaert.org>
+ * Copyright (c) 2015-2022 Christiano F. Haesbaert <haesbaert@haesbaert.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -28,14 +28,14 @@ type driver =
   | AF_PACKET
   | BPF
 
-external opensock: ?filter:string -> string -> Unix.file_descr = "caml_rawlink_open"
+external opensock: ?filter:string -> ?promisc:bool -> string -> Unix.file_descr = "caml_rawlink_open"
 external dhcp_server_filter: unit -> string = "caml_dhcp_server_filter"
 external dhcp_client_filter: unit -> string = "caml_dhcp_client_filter"
 external driver: unit -> driver = "caml_driver"
 external bpf_align: int -> int -> int = "caml_bpf_align"
 
-let open_link ?filter ifname =
-  let fd = Lwt_unix.of_unix_file_descr (opensock ?filter:filter ifname) in
+let open_link ?filter ?(promisc=false) ifname =
+  let fd = Lwt_unix.of_unix_file_descr (opensock ?filter:filter ~promisc ifname) in
   let () = Lwt_unix.set_blocking fd false in
   { fd; packets = ref []; buffer = (Cstruct.create 65536) }
 

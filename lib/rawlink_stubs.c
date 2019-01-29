@@ -163,10 +163,27 @@ bpf_setfilter(int fd, value vfilter)
 	return (r);
 }
 
-CAMLprim value
-caml_rawlink_open(value vfilter, value vifname)
+int
+bpf_setpromisc(int fd, int promisc)
 {
-	CAMLparam2(vfilter, vifname);
+	int r = 0;
+
+	if (promisc) {
+		caml_enter_blocking_section();
+		r = ioctl(fd, BIOCPROMISC, NULL);
+		caml_leave_blocking_section();
+	}
+
+	if (r == -1)
+		uerror("bpf_setpromisc", Nothing);
+
+	return (0);
+}
+
+CAMLprim value
+caml_rawlink_open(value vfilter, value vpromisc, value vifname)
+{
+	CAMLparam3(vfilter, vpromisc, vifname);
 	int fd;
 
 	if ((fd = bpf_open()) == -1)
@@ -180,6 +197,8 @@ caml_rawlink_open(value vfilter, value vifname)
 	if (bpf_setif(fd, String_val(vifname)) == -1)
 		CAMLreturn(Val_unit);
 	if (bpf_setimmediate(fd, 1) == -1)
+		CAMLreturn(Val_unit);
+	if (bpf_setpromisc(fd, Bool_val(vpromisc)) == -1)
 		CAMLreturn(Val_unit);
 
 	CAMLreturn (Val_int(fd));
@@ -203,6 +222,34 @@ caml_bpf_align(value va, value vb)
 #endif	/* USE_BPF */
 
 #ifdef USE_AF_PACKET
+
+/*
+ * Welcome to linux where glibc insists in not providing strlcpy.
+ */
+size_t
+strlcpy(char *dst, const char *src, size_t dsize)
+{
+	const char *osrc = src;
+	size_t nleft = dsize;
+
+	/* Copy as many bytes as will fit. */
+	if (nleft != 0) {
+		while (--nleft != 0) {
+			if ((*dst++ = *src++) == '\0')
+				break;
+		}
+	}
+
+	/* Not enough room in dst, add NUL and traverse rest of src. */
+	if (nleft == 0) {
+		if (dsize != 0)
+			*dst = '\0';		/* NUL-terminate dst */
+		while (*src++)
+			;
+	}
+
+	return(src - osrc - 1);	/* count does not include NUL */
+}
 
 #define FILTER sock_filter
 
@@ -271,17 +318,47 @@ af_packet_setfilter(int fd, value vfilter)
 	return (r);
 }
 
-CAMLprim value
-caml_rawlink_open(value vfilter, value vifname)
+int
+af_packet_setpromisc(int fd, int promisc, const char *ifname)
 {
-	CAMLparam2(vfilter, vifname);
+	int r = 0;
+	struct packet_mreq mr;
+	int ifidx;
+
+	ifidx = if_nametoindex(ifname);
+	if (ifidx == 0)
+		uerror("af_set_promisc: if_nametoindex", Nothing);
+
+	if (promisc) {
+		bzero(&mr, sizeof(mr));
+		mr.mr_ifindex = ifidx;
+		mr.mr_type = PACKET_MR_PROMISC;
+		caml_enter_blocking_section();
+		r = setsockopt(fd, SOL_PACKET, PACKET_ADD_MEMBERSHIP,
+		    &mr, sizeof(mr));
+		caml_leave_blocking_section();
+		if (r == -1)
+			uerror("af_set_promisc: PACKET_ADD_MEMBERSHIP",
+			    Nothing);
+	}
+
+	return (r);
+}
+
+CAMLprim value
+caml_rawlink_open(value vfilter, value vpromisc, value vifname)
+{
+	CAMLparam3(vfilter, vpromisc, vifname);
 	int fd;
 
 	if ((fd = af_packet_open()) == -1)
 		CAMLreturn (Val_unit);
 	if (af_packet_setfilter(fd, vfilter) == -1)
-		CAMLreturn(Val_unit);
+		CAMLreturn (Val_unit);
 	if (af_packet_setif(fd, String_val(vifname)) == -1)
+		CAMLreturn (Val_unit);
+	if (af_packet_setpromisc(fd, Bool_val(vpromisc),
+	    String_val(vifname)) == -1)
 		CAMLreturn (Val_unit);
 
 	CAMLreturn (Val_int(fd));
@@ -307,6 +384,7 @@ caml_driver(value vunit)
 	CAMLreturn (Val_int(1));
 #endif
 }
+
 /* Filters */
 CAMLprim value
 caml_dhcp_server_filter(value vunit)
@@ -345,6 +423,7 @@ caml_dhcp_server_filter(value vunit)
 
 	CAMLreturn (vfilter);
 }
+
 CAMLprim value
 caml_dhcp_client_filter(value vunit)
 {
