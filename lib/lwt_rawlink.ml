@@ -20,6 +20,8 @@ open Lwt.Infix
 
 type t = {
   fd : Lwt_unix.file_descr;
+  ifname : string;
+  promisc : bool;
   packets : Cstruct.t list ref;
   buffer : Cstruct.t;
 }
@@ -28,18 +30,21 @@ type driver =
   | AF_PACKET
   | BPF
 
-external opensock: ?filter:string -> string -> Unix.file_descr = "caml_rawlink_open"
+external opensock: ?filter:string -> promisc:bool ->
+  string -> Unix.file_descr = "caml_rawlink_open"
+external closesock: Unix.file_descr -> bool -> string -> unit = "caml_rawlink_close"
 external dhcp_server_filter: unit -> string = "caml_dhcp_server_filter"
 external dhcp_client_filter: unit -> string = "caml_dhcp_client_filter"
 external driver: unit -> driver = "caml_driver"
 external bpf_align: int -> int -> int = "caml_bpf_align"
 
-let open_link ?filter ifname =
-  let fd = Lwt_unix.of_unix_file_descr (opensock ?filter:filter ifname) in
+let open_link ?filter ?(promisc=false) ifname =
+  let fd = Lwt_unix.of_unix_file_descr (opensock ?filter:filter ~promisc ifname) in
   let () = Lwt_unix.set_blocking fd false in
-  { fd; packets = ref []; buffer = (Cstruct.create 65536) }
+  { fd; ifname; promisc; packets = ref []; buffer = (Cstruct.create 65536) }
 
-let close_link t = Lwt_unix.close t.fd
+let close_link t =
+  Lwt.return (closesock (Lwt_unix.unix_file_descr t.fd) t.promisc t.ifname)
 
 let rec read_packet t =
   match !(t.packets) with

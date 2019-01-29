@@ -141,6 +141,28 @@ bpf_setimmediate(int fd, u_int opt)
 	return (r);
 }
 
+/*
+ * BPF is better designed than AF_PACKET, promisc is unset once all bpf sessions
+ * to that interface are closed, so we don't need to clear it
+ */
+int
+bpf_setpromisc(int fd, value vpromisc)
+{
+	int r;
+
+	if (!Bool_val(vpromisc))
+		return (0);
+
+	caml_enter_blocking_section();
+	r = ioctl(fd, BIOCPROMISC, NULL);
+	caml_leave_blocking_section();
+
+	if (r == 1)
+		uerror("bpf_setpromisc", Nothing);
+
+	return (r);
+}
+
 int
 bpf_setfilter(int fd, value vfilter)
 {
@@ -164,9 +186,9 @@ bpf_setfilter(int fd, value vfilter)
 }
 
 CAMLprim value
-caml_rawlink_open(value vfilter, value vifname)
+caml_rawlink_open(value vfilter, value vpromisc, value vifname)
 {
-	CAMLparam2(vfilter, vifname);
+	CAMLparam3(vfilter, vpromisc, vifname);
 	int fd;
 
 	if ((fd = bpf_open()) == -1)
@@ -180,6 +202,8 @@ caml_rawlink_open(value vfilter, value vifname)
 	if (bpf_setif(fd, String_val(vifname)) == -1)
 		CAMLreturn(Val_unit);
 	if (bpf_setimmediate(fd, 1) == -1)
+		CAMLreturn(Val_unit);
+	if (bpf_setpromisc(fd, 1) == -1)
 		CAMLreturn(Val_unit);
 
 	CAMLreturn (Val_int(fd));
@@ -203,6 +227,34 @@ caml_bpf_align(value va, value vb)
 #endif	/* USE_BPF */
 
 #ifdef USE_AF_PACKET
+
+/*
+ * Welcome to linux where glibc insists in not providing strlcpy.
+ */
+size_t
+strlcpy(char *dst, const char *src, size_t dsize)
+{
+	const char *osrc = src;
+	size_t nleft = dsize;
+
+	/* Copy as many bytes as will fit. */
+	if (nleft != 0) {
+		while (--nleft != 0) {
+			if ((*dst++ = *src++) == '\0')
+				break;
+		}
+	}
+
+	/* Not enough room in dst, add NUL and traverse rest of src. */
+	if (nleft == 0) {
+		if (dsize != 0)
+			*dst = '\0';		/* NUL-terminate dst */
+		while (*src++)
+			;
+	}
+
+	return(src - osrc - 1);	/* count does not include NUL */
+}
 
 #define FILTER sock_filter
 
@@ -271,16 +323,58 @@ af_packet_setfilter(int fd, value vfilter)
 	return (r);
 }
 
-CAMLprim value
-caml_rawlink_open(value vfilter, value vifname)
+/* 1 for set, 0 for clear */
+int
+af_packet_setpromisc(int fd, int promisc, int setclr, const char *ifname)
 {
-	CAMLparam2(vfilter, vifname);
+	int r;
+	struct ifreq ifreq;
+
+	if (!promisc)
+		return (0);
+
+	bzero(&ifreq, sizeof(ifreq));
+	strlcpy(ifreq.ifr_name, ifname, sizeof(ifreq.ifr_name));
+
+	caml_enter_blocking_section();
+	r = ioctl(fd, SIOCGIFFLAGS, &ifreq);
+	caml_leave_blocking_section();
+
+	if (r == -1) {
+		uerror("af_packet_setpromisc:SIOCGIFFLAGS", Nothing);
+		return (r);
+	}
+
+	if (setclr)
+		ifreq.ifr_flags |= IFF_PROMISC;
+	else
+		ifreq.ifr_flags &= ~IFF_PROMISC;
+
+	caml_enter_blocking_section();
+	r = ioctl(fd, SIOCSIFFLAGS, &ifreq);
+	caml_leave_blocking_section();
+
+	if (r == -1) {
+		uerror("af_packet_setpromisc:SIOCSIFFLAGS", Nothing);
+		return (r);
+	}
+
+	return (r);
+}
+
+CAMLprim value
+caml_rawlink_open(value vfilter, value vpromisc, value vifname)
+{
+	CAMLparam3(vfilter, vpromisc, vifname);
 	int fd;
 
 	if ((fd = af_packet_open()) == -1)
 		CAMLreturn (Val_unit);
 	if (af_packet_setfilter(fd, vfilter) == -1)
-		CAMLreturn(Val_unit);
+		CAMLreturn (Val_unit);
+	if (af_packet_setpromisc(fd, Bool_val(vpromisc),
+	    1, String_val(vifname)) == -1)
+		CAMLreturn (Val_unit);
 	if (af_packet_setif(fd, String_val(vifname)) == -1)
 		CAMLreturn (Val_unit);
 
@@ -296,6 +390,30 @@ caml_bpf_align(value va, value vb)
 }
 
 #endif	/* USE_AF_PACKET */
+
+CAMLprim value
+caml_rawlink_close(value vfd, value vpromisc, value vifname)
+{
+	CAMLparam3(vfd, vpromisc, vifname);
+	int r;
+
+#ifdef USE_AF_PACKET
+	/*
+	 * Ignore return on purpose, doing the close is more relevant.
+	 */
+	(void)af_packet_setpromisc(Int_val(vfd), Bool_val(vpromisc), 0,
+	    String_val(vifname));
+#endif
+
+	caml_enter_blocking_section();
+	r = close(Int_val(vfd));
+	caml_leave_blocking_section();
+
+	if (r == -1)
+		uerror("caml_rawlink_close", Nothing);
+
+	CAMLreturn (Val_unit);
+}
 
 CAMLprim value
 caml_driver(value vunit)

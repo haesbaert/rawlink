@@ -27,6 +27,8 @@ type bpf_hdr = {
 
 type t = {
   fd : Unix.file_descr;
+  ifname : string;
+  promisc : bool;
   packets : Cstruct.t list ref;
   buffer : Cstruct.t;
 }
@@ -35,7 +37,9 @@ type driver =
   | AF_PACKET
   | BPF
 
-external opensock: ?filter:string -> string -> Unix.file_descr = "caml_rawlink_open"
+external opensock: ?filter:string -> promisc:bool ->
+  string -> Unix.file_descr = "caml_rawlink_open"
+external closesock: Unix.file_descr -> bool -> string -> unit = "caml_rawlink_close"
 external dhcp_server_filter: unit -> string = "caml_dhcp_server_filter"
 external dhcp_client_filter: unit -> string = "caml_dhcp_client_filter"
 external driver: unit -> driver = "caml_driver"
@@ -43,12 +47,14 @@ external unix_bytes_read: Unix.file_descr -> Cstruct.buffer -> int -> int -> int
   "lwt_unix_bytes_read"
 external bpf_align: int -> int -> int = "caml_bpf_align"
 
-let open_link ?filter ifname =
-  { fd = opensock ?filter:filter ifname;
+let open_link ?filter ?(promisc=false) ifname =
+  { fd = opensock ?filter ~promisc ifname;
+    ifname;
+    promisc;
     packets = ref [];
     buffer = Cstruct.create 65536 }
 
-let close_link t = Unix.close t.fd
+let close_link t = closesock t.fd t.promisc t.ifname
 
 let send_packet t buf =
   let len = Cstruct.len buf in
