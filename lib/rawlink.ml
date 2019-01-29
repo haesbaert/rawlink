@@ -17,13 +17,13 @@
 [@@@warning "-32-37"]
 
 [%%cstruct
-type bpf_hdr = {
-	bh_sec: uint32_t;
-	bh_usec: uint32_t;
-	bh_caplen: uint32_t;
-	bh_datalen: uint32_t;
-	bh_hdrlen: uint16_t;
-} [@@little_endian]]
+  type bpf_hdr = {
+    bh_sec: uint32_t;
+    bh_usec: uint32_t;
+    bh_caplen: uint32_t;
+    bh_datalen: uint32_t;
+    bh_hdrlen: uint16_t;
+  } [@@little_endian]]
 
 type t = {
   fd : Unix.file_descr;
@@ -35,7 +35,7 @@ type driver =
   | AF_PACKET
   | BPF
 
-external opensock: ?filter:string -> string -> Unix.file_descr = "caml_rawlink_open"
+external opensock: ?promisc:bool -> ?filter:string -> string -> Unix.file_descr = "caml_rawlink_open"
 external dhcp_server_filter: unit -> string = "caml_dhcp_server_filter"
 external dhcp_client_filter: unit -> string = "caml_dhcp_client_filter"
 external driver: unit -> driver = "caml_driver"
@@ -43,8 +43,8 @@ external unix_bytes_read: Unix.file_descr -> Cstruct.buffer -> int -> int -> int
   "lwt_unix_bytes_read"
 external bpf_align: int -> int -> int = "caml_bpf_align"
 
-let open_link ?filter ifname =
-  { fd = opensock ?filter:filter ifname;
+let open_link ?promisc ?filter ifname =
+  { fd = opensock ?promisc:promisc ?filter:filter ifname;
     packets = ref [];
     buffer = Cstruct.create 65536 }
 

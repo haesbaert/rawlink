@@ -29,11 +29,11 @@
 #ifdef USE_AF_PACKET
 #include <linux/if_packet.h>
 #include <linux/filter.h>
-#endif	/* USE_AF_PACKET */
+#endif /* USE_AF_PACKET */
 
 #ifdef USE_BPF
 #include <net/bpf.h>
-#endif	/* USE_BPF */
+#endif /* USE_BPF */
 
 #include <netinet/in.h>
 
@@ -60,13 +60,13 @@
 
 #define FILTER bpf_insn
 
-int
-bpf_open(void)
+int bpf_open(void)
 {
 	int i, fd = -1;
 	char path[16];
 
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < 10; i++)
+	{
 		snprintf(path, sizeof(path), "/dev/bpf%d", i);
 		enter_blocking_section();
 		fd = open(path, O_RDWR);
@@ -82,8 +82,7 @@ bpf_open(void)
 	return (fd);
 }
 
-int
-bpf_seesent(int fd, u_int opt)
+int bpf_seesent(int fd, u_int opt)
 {
 	int r;
 
@@ -96,8 +95,7 @@ bpf_seesent(int fd, u_int opt)
 	return (r);
 }
 
-int
-bpf_setblen(int fd, u_int len)
+int bpf_setblen(int fd, u_int len)
 {
 	int r;
 
@@ -110,14 +108,13 @@ bpf_setblen(int fd, u_int len)
 	return (r);
 }
 
-int
-bpf_setif(int fd, char *ifname)
+int bpf_setif(int fd, char *ifname)
 {
 	struct ifreq ifreq;
 	int r;
 
 	bzero(&ifreq, sizeof(ifreq));
-	strlcpy(ifreq.ifr_name, ifname, sizeof (ifreq.ifr_name));
+	strlcpy(ifreq.ifr_name, ifname, sizeof(ifreq.ifr_name));
 	caml_enter_blocking_section();
 	r = ioctl(fd, BIOCSETIF, &ifreq);
 	caml_leave_blocking_section();
@@ -127,8 +124,7 @@ bpf_setif(int fd, char *ifname)
 	return (r);
 }
 
-int
-bpf_setimmediate(int fd, u_int opt)
+int bpf_setimmediate(int fd, u_int opt)
 {
 	int r;
 
@@ -141,8 +137,7 @@ bpf_setimmediate(int fd, u_int opt)
 	return (r);
 }
 
-int
-bpf_setfilter(int fd, value vfilter)
+int bpf_setfilter(int fd, value vfilter)
 {
 	int r;
 	struct bpf_program prog;
@@ -150,8 +145,8 @@ bpf_setfilter(int fd, value vfilter)
 	if (vfilter == Val_int(0))
 		return (0);
 	prog.bf_len = caml_string_length(Field(vfilter, 0)) /
-	    sizeof(struct bpf_insn);
-	prog.bf_insns = (struct bpf_insn *) String_val(Field(vfilter, 0));
+				  sizeof(struct bpf_insn);
+	prog.bf_insns = (struct bpf_insn *)String_val(Field(vfilter, 0));
 
 	caml_enter_blocking_section();
 	r = ioctl(fd, BIOCSETF, &prog);
@@ -164,9 +159,9 @@ bpf_setfilter(int fd, value vfilter)
 }
 
 CAMLprim value
-caml_rawlink_open(value vfilter, value vifname)
+caml_rawlink_open(value vpromisc, value vfilter, value vifname)
 {
-	CAMLparam2(vfilter, vifname);
+	CAMLparam3(vpromisc, vfilter, vifname);
 	int fd;
 
 	if ((fd = bpf_open()) == -1)
@@ -182,7 +177,7 @@ caml_rawlink_open(value vfilter, value vifname)
 	if (bpf_setimmediate(fd, 1) == -1)
 		CAMLreturn(Val_unit);
 
-	CAMLreturn (Val_int(fd));
+	CAMLreturn(Val_int(fd));
 }
 
 CAMLprim value
@@ -195,19 +190,18 @@ caml_bpf_align(value va, value vb)
 	a = Int_val(va);
 	b = Int_val(vb);
 
-	v = Val_int(BPF_WORDALIGN (a + b));
+	v = Val_int(BPF_WORDALIGN(a + b));
 
-	CAMLreturn (v);
+	CAMLreturn(v);
 }
 
-#endif	/* USE_BPF */
+#endif /* USE_BPF */
 
 #ifdef USE_AF_PACKET
 
 #define FILTER sock_filter
 
-int
-af_packet_open(void)
+int af_packet_open(void)
 {
 	int fd;
 
@@ -221,14 +215,14 @@ af_packet_open(void)
 	return (fd);
 }
 
-int
-af_packet_setif(int fd, char *ifname)
+int af_packet_setif(int fd, char *ifname)
 {
 	int r, ifidx;
 	struct sockaddr_ll sll;
 
 	ifidx = if_nametoindex(ifname);
-	if (ifidx == 0) {
+	if (ifidx == 0)
+	{
 		uerror("af_packet_setif: if_nametoindex", Nothing);
 		return (-1);
 	}
@@ -239,7 +233,7 @@ af_packet_setif(int fd, char *ifname)
 	sll.sll_protocol = htons(ETH_P_ALL);
 
 	enter_blocking_section();
-	r = bind(fd, (struct sockaddr *) &sll, sizeof(sll));
+	r = bind(fd, (struct sockaddr *)&sll, sizeof(sll));
 	leave_blocking_section();
 
 	if (r == -1)
@@ -248,8 +242,7 @@ af_packet_setif(int fd, char *ifname)
 	return (r);
 }
 
-int
-af_packet_setfilter(int fd, value vfilter)
+int af_packet_setfilter(int fd, value vfilter)
 {
 	int r;
 	struct sock_fprog prog;
@@ -258,8 +251,8 @@ af_packet_setfilter(int fd, value vfilter)
 		return (0);
 
 	prog.len = caml_string_length(Field(vfilter, 0)) /
-	    sizeof(struct sock_filter);
-	prog.filter = (struct sock_filter *) String_val(Field(vfilter, 0));
+			   sizeof(struct sock_filter);
+	prog.filter = (struct sock_filter *)String_val(Field(vfilter, 0));
 
 	caml_enter_blocking_section();
 	r = setsockopt(fd, SOL_SOCKET, SO_ATTACH_FILTER, &prog, sizeof(prog));
@@ -271,20 +264,38 @@ af_packet_setfilter(int fd, value vfilter)
 	return (r);
 }
 
-CAMLprim value
-caml_rawlink_open(value vfilter, value vifname)
+int af_packet_set_promisc(int fd, int promisc, char *ifname)
 {
-	CAMLparam2(vfilter, vifname);
+	struct ifreq ifopts;
+	int r;
+	if (!promisc)
+		return (1);
+
+	strncpy(ifopts.ifr_name, ifname, IFNAMSIZ - 1);
+	caml_enter_blocking_section();
+	r = ioctl(fd, SIOCGIFFLAGS, &ifopts);
+	ifopts.ifr_flags |= IFF_PROMISC;
+	r = ioctl(fd, SIOCSIFFLAGS, &ifopts);
+	caml_leave_blocking_section();
+	return (r);
+}
+
+CAMLprim value
+caml_rawlink_open(value vpromisc, value vfilter, value vifname)
+{
+	CAMLparam3(vpromisc, vfilter, vifname);
 	int fd;
 
 	if ((fd = af_packet_open()) == -1)
-		CAMLreturn (Val_unit);
+		CAMLreturn(Val_unit);
 	if (af_packet_setfilter(fd, vfilter) == -1)
 		CAMLreturn(Val_unit);
 	if (af_packet_setif(fd, String_val(vifname)) == -1)
-		CAMLreturn (Val_unit);
+		CAMLreturn(Val_unit);
+	if (af_packet_set_promisc(fd, Int_val(vpromisc), String_val(vifname)) == -1)
+		CAMLreturn(Val_unit);
 
-	CAMLreturn (Val_int(fd));
+	CAMLreturn(Val_int(fd));
 }
 
 /* dummy, not called */
@@ -292,19 +303,19 @@ CAMLprim value
 caml_bpf_align(value va, value vb)
 {
 	CAMLparam2(va, vb);
-	CAMLreturn (Val_int(0));
+	CAMLreturn(Val_int(0));
 }
 
-#endif	/* USE_AF_PACKET */
+#endif /* USE_AF_PACKET */
 
 CAMLprim value
 caml_driver(value vunit)
 {
 	CAMLparam0();
 #ifdef AF_PACKET
-	CAMLreturn (Val_int(0));
+	CAMLreturn(Val_int(0));
 #else
-	CAMLreturn (Val_int(1));
+	CAMLreturn(Val_int(1));
 #endif
 }
 /* Filters */
@@ -315,35 +326,35 @@ caml_dhcp_server_filter(value vunit)
 	CAMLlocal1(vfilter);
 	struct FILTER dhcp_bpf_filter[] = {
 		/* Make sure this is an IP packet... */
-		BPF_STMT (BPF_LD + BPF_H + BPF_ABS, 12),
-		BPF_JUMP (BPF_JMP + BPF_JEQ + BPF_K, ETHERTYPE_IP, 0, 8),
+		BPF_STMT(BPF_LD + BPF_H + BPF_ABS, 12),
+		BPF_JUMP(BPF_JMP + BPF_JEQ + BPF_K, ETHERTYPE_IP, 0, 8),
 
 		/* Make sure it's a UDP packet... */
-		BPF_STMT (BPF_LD + BPF_B + BPF_ABS, 23),
-		BPF_JUMP (BPF_JMP + BPF_JEQ + BPF_K, IPPROTO_UDP, 0, 6),
+		BPF_STMT(BPF_LD + BPF_B + BPF_ABS, 23),
+		BPF_JUMP(BPF_JMP + BPF_JEQ + BPF_K, IPPROTO_UDP, 0, 6),
 
 		/* Make sure this isn't a fragment... */
 		BPF_STMT(BPF_LD + BPF_H + BPF_ABS, 20),
 		BPF_JUMP(BPF_JMP + BPF_JSET + BPF_K, 0x1fff, 4, 0),
 
 		/* Get the IP header length... */
-		BPF_STMT (BPF_LDX + BPF_B + BPF_MSH, 14),
+		BPF_STMT(BPF_LDX + BPF_B + BPF_MSH, 14),
 
 		/* Make sure it's to the right port... */
-		BPF_STMT (BPF_LD + BPF_H + BPF_IND, 16),
-		BPF_JUMP (BPF_JMP + BPF_JEQ + BPF_K, 67, 0, 1), /* patch */
+		BPF_STMT(BPF_LD + BPF_H + BPF_IND, 16),
+		BPF_JUMP(BPF_JMP + BPF_JEQ + BPF_K, 67, 0, 1), /* patch */
 
 		/* If we passed all the tests, ask for the whole packet. */
-		BPF_STMT(BPF_RET+BPF_K, (u_int)-1),
+		BPF_STMT(BPF_RET + BPF_K, (u_int)-1),
 
 		/* Otherwise, drop it. */
-		BPF_STMT(BPF_RET+BPF_K, 0),
+		BPF_STMT(BPF_RET + BPF_K, 0),
 	};
 
 	vfilter = caml_alloc_string(sizeof(dhcp_bpf_filter));
 	memcpy(String_val(vfilter), dhcp_bpf_filter, sizeof(dhcp_bpf_filter));
 
-	CAMLreturn (vfilter);
+	CAMLreturn(vfilter);
 }
 CAMLprim value
 caml_dhcp_client_filter(value vunit)
@@ -352,33 +363,33 @@ caml_dhcp_client_filter(value vunit)
 	CAMLlocal1(vfilter);
 	struct FILTER dhcp_bpf_filter[] = {
 		/* Make sure this is an IP packet... */
-		BPF_STMT (BPF_LD + BPF_H + BPF_ABS, 12),
-		BPF_JUMP (BPF_JMP + BPF_JEQ + BPF_K, ETHERTYPE_IP, 0, 8),
+		BPF_STMT(BPF_LD + BPF_H + BPF_ABS, 12),
+		BPF_JUMP(BPF_JMP + BPF_JEQ + BPF_K, ETHERTYPE_IP, 0, 8),
 
 		/* Make sure it's a UDP packet... */
-		BPF_STMT (BPF_LD + BPF_B + BPF_ABS, 23),
-		BPF_JUMP (BPF_JMP + BPF_JEQ + BPF_K, IPPROTO_UDP, 0, 6),
+		BPF_STMT(BPF_LD + BPF_B + BPF_ABS, 23),
+		BPF_JUMP(BPF_JMP + BPF_JEQ + BPF_K, IPPROTO_UDP, 0, 6),
 
 		/* Make sure this isn't a fragment... */
 		BPF_STMT(BPF_LD + BPF_H + BPF_ABS, 20),
 		BPF_JUMP(BPF_JMP + BPF_JSET + BPF_K, 0x1fff, 4, 0),
 
 		/* Get the IP header length... */
-		BPF_STMT (BPF_LDX + BPF_B + BPF_MSH, 14),
+		BPF_STMT(BPF_LDX + BPF_B + BPF_MSH, 14),
 
 		/* Make sure it's to the right port... */
-		BPF_STMT (BPF_LD + BPF_H + BPF_IND, 16),
-		BPF_JUMP (BPF_JMP + BPF_JEQ + BPF_K, 68, 0, 1), /* patch */
+		BPF_STMT(BPF_LD + BPF_H + BPF_IND, 16),
+		BPF_JUMP(BPF_JMP + BPF_JEQ + BPF_K, 68, 0, 1), /* patch */
 
 		/* If we passed all the tests, ask for the whole packet. */
-		BPF_STMT(BPF_RET+BPF_K, (u_int)-1),
+		BPF_STMT(BPF_RET + BPF_K, (u_int)-1),
 
 		/* Otherwise, drop it. */
-		BPF_STMT(BPF_RET+BPF_K, 0),
+		BPF_STMT(BPF_RET + BPF_K, 0),
 	};
 
 	vfilter = caml_alloc_string(sizeof(dhcp_bpf_filter));
 	memcpy(String_val(vfilter), dhcp_bpf_filter, sizeof(dhcp_bpf_filter));
 
-	CAMLreturn (vfilter);
+	CAMLreturn(vfilter);
 }

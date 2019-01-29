@@ -26,10 +26,12 @@
 type t
 (** Type of a rawlink. *)
 
-val open_link : ?filter:string -> string -> t
+val open_link : ?promisc:bool -> ?filter:string -> string -> t
 (** [open_link ~filter interface]. Creates a rawlink on the specified
     [interface], a BPF program [filter] can be passed to filter out incoming
-    packets. *)
+    packets.
+    The interfaces can be set on promiscuous mode using [promisc]
+*)
 
 val close_link : t -> unit
 (** [close_link]. Closes a rawlink. *)
