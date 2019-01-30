@@ -28,14 +28,14 @@ type driver =
   | AF_PACKET
   | BPF
 
-external opensock: ?promisc:bool -> ?filter:string -> string -> Unix.file_descr = "caml_rawlink_open"
+external opensock:  ?filter:string -> promisc:bool -> string -> Unix.file_descr = "caml_rawlink_open"
 external dhcp_server_filter: unit -> string = "caml_dhcp_server_filter"
 external dhcp_client_filter: unit -> string = "caml_dhcp_client_filter"
 external driver: unit -> driver = "caml_driver"
 external bpf_align: int -> int -> int = "caml_bpf_align"
 
-let open_link ?promisc ?filter ifname =
-  let fd = Lwt_unix.of_unix_file_descr (opensock ?promisc:promisc ?filter:filter ifname) in
+let open_link ?filter ?(promisc=false) ifname =
+  let fd = Lwt_unix.of_unix_file_descr (opensock ?filter ~promisc ifname) in
   let () = Lwt_unix.set_blocking fd false in
   { fd; packets = ref []; buffer = (Cstruct.create 65536) }
 
