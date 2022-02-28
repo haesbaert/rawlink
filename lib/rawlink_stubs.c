@@ -222,7 +222,7 @@ af_packet_open(void)
 }
 
 int
-af_packet_setif(int fd, char *ifname)
+af_packet_setif(int fd, const char *ifname)
 {
 	int r, ifidx;
 	struct sockaddr_ll sll;
@@ -341,7 +341,7 @@ caml_dhcp_server_filter(value vunit)
 	};
 
 	vfilter = caml_alloc_string(sizeof(dhcp_bpf_filter));
-	memcpy(String_val(vfilter), dhcp_bpf_filter, sizeof(dhcp_bpf_filter));
+	memcpy(Bp_val(vfilter), dhcp_bpf_filter, sizeof(dhcp_bpf_filter));
 
 	CAMLreturn (vfilter);
 }
@@ -378,7 +378,7 @@ caml_dhcp_client_filter(value vunit)
 	};
 
 	vfilter = caml_alloc_string(sizeof(dhcp_bpf_filter));
-	memcpy(String_val(vfilter), dhcp_bpf_filter, sizeof(dhcp_bpf_filter));
+	memcpy(Bp_val(vfilter), dhcp_bpf_filter, sizeof(dhcp_bpf_filter));
 
 	CAMLreturn (vfilter);
 }
