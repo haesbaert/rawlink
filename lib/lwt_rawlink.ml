@@ -62,7 +62,7 @@ let rec read_packet t =
           Lwt.return buf)
 
 let send_packet t buf =
-  let len = Cstruct.len buf in
+  let len = Cstruct.length buf in
   Lwt_bytes.write t.fd buf.Cstruct.buffer 0 len
   >>= (fun n ->
       if n = 0 then

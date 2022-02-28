@@ -51,7 +51,7 @@ let open_link ?filter ifname =
 let close_link t = Unix.close t.fd
 
 let send_packet t buf =
-  let len = Cstruct.len buf in
+  let len = Cstruct.length buf in
   let n = Unix.write t.fd (Cstruct.to_bytes buf) 0 len in
   if n = 0 then
     raise (Unix.Unix_error(Unix.EPIPE, "send_packet: socket closed", ""))
