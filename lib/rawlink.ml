@@ -23,7 +23,7 @@ type bpf_hdr = {
 	bh_caplen: uint32_t;
 	bh_datalen: uint32_t;
 	bh_hdrlen: uint16_t;
-} [@@little_endian]]
+} [@@host_endian]]
 
 type t = {
   fd : Unix.file_descr;
