@@ -1,3 +1,10 @@
+## v1.1 (2022-04-01)
+
+* Use Host_endian instead of Little_endian, requires Cstruct >= 6.1.0,
+this will make rawlink work correctly on big endian machines
+* Adapt to modern Cstruct
+* const/deconstify string/bytes
+
 ## v1.0 (2019-01-17)
 
 This release splits the Lwt package into a separate
