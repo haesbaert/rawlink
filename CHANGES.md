@@ -1,3 +1,9 @@
+## v1.2 (2022-04-14)
+
+* Fix linking against non-lwt rawlink
+* Implement promiscuous mode
+* Update caml_ calls in rawlink_stubs.c
+
 ## v1.1 (2022-04-01)
 
 * Use Host_endian instead of Little_endian, requires Cstruct >= 6.1.0,
