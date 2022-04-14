@@ -68,9 +68,9 @@ bpf_open(void)
 
 	for (i = 0; i < 10; i++) {
 		snprintf(path, sizeof(path), "/dev/bpf%d", i);
-		enter_blocking_section();
+		caml_enter_blocking_section();
 		fd = open(path, O_RDWR);
-		leave_blocking_section();
+		caml_leave_blocking_section();
 		if (fd == -1 && errno == EBUSY)
 			continue;
 		break;
@@ -258,9 +258,9 @@ af_packet_open(void)
 {
 	int fd;
 
-	enter_blocking_section();
+	caml_enter_blocking_section();
 	fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
-	leave_blocking_section();
+	caml_leave_blocking_section();
 
 	if (fd == -1)
 		uerror("af_packet_open", Nothing);
@@ -285,9 +285,9 @@ af_packet_setif(int fd, const char *ifname)
 	sll.sll_ifindex = ifidx;
 	sll.sll_protocol = htons(ETH_P_ALL);
 
-	enter_blocking_section();
+	caml_enter_blocking_section();
 	r = bind(fd, (struct sockaddr *) &sll, sizeof(sll));
-	leave_blocking_section();
+	caml_leave_blocking_section();
 
 	if (r == -1)
 		uerror("af_packet_setif: bind", Nothing);
