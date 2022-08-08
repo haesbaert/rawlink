@@ -13,7 +13,7 @@ Currently BPF and AF_PACKET are implemented, including filtering capabilities.
 Writing a BPF program is a pain in the ass, so no facilities are provided for
 it. If you need a BPF filter, I suggest you write a small .c file with a
 function that returns the BPF program as a string, check `rawlink_stubs.c` for
-an example. You can leverage `[dumpcap -d]`(https://tshark.dev/packetcraft/arcana/bpf_instructions/)
+an example. You can leverage [`dumpcap -d`](https://tshark.dev/packetcraft/arcana/bpf_instructions/)
 to generate BPF programs from human readable filters.
 
 Both normal blocking functions as well as `Lwt` monadic variants are provided.
