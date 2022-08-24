@@ -16,6 +16,8 @@
 
 [@@@warning "-32-37"]
 
+module Lowlevel = Rawlink_lowlevel
+
 open Lwt.Infix
 
 type t = {
@@ -24,18 +26,8 @@ type t = {
   buffer : Cstruct.t;
 }
 
-type driver =
-  | AF_PACKET
-  | BPF
-
-external opensock: ?filter:string -> ?promisc:bool -> string -> Unix.file_descr = "caml_rawlink_open"
-external dhcp_server_filter: unit -> string = "caml_dhcp_server_filter"
-external dhcp_client_filter: unit -> string = "caml_dhcp_client_filter"
-external driver: unit -> driver = "caml_driver"
-external bpf_align: int -> int -> int = "caml_bpf_align"
-
 let open_link ?filter ?(promisc=false) ifname =
-  let fd = Lwt_unix.of_unix_file_descr (opensock ?filter:filter ~promisc ifname) in
+  let fd = Lwt_unix.of_unix_file_descr (Lowlevel.opensock ?filter:filter ~promisc ifname) in
   let () = Lwt_unix.set_blocking fd false in
   { fd; packets = ref []; buffer = (Cstruct.create 65536) }
 
@@ -44,22 +36,13 @@ let close_link t = Lwt_unix.close t.fd
 let rec read_packet t =
   match !(t.packets) with
   | hd :: tl -> t.packets := tl; Lwt.return hd
-  | [] -> match driver () with
-    | BPF ->
-      Lwt_bytes.read t.fd t.buffer.Cstruct.buffer 0 t.buffer.Cstruct.len
-      >>= (fun n ->
-          if n = 0 then
-            failwith "Link socket closed";
-          t.packets := Rawlink.bpf_split_buffer t.buffer n;
-          read_packet t)
-    | AF_PACKET ->
-      Lwt_bytes.read t.fd t.buffer.Cstruct.buffer 0 t.buffer.Cstruct.len
-      >>= (fun n ->
-          if n = 0 then
-            failwith "Link socket closed";
-          let buf = Cstruct.create n in
-          Cstruct.blit t.buffer 0 buf 0 n;
-          Lwt.return buf)
+  | [] ->
+    Lwt_bytes.read t.fd t.buffer.Cstruct.buffer 0 t.buffer.Cstruct.len
+    >>= (fun n ->
+        if n = 0 then
+          failwith "Link socket closed";
+        t.packets := Lowlevel.process_input t.buffer n;
+        read_packet t)
 
 let send_packet t buf =
   let len = Cstruct.length buf in
@@ -71,3 +54,7 @@ let send_packet t buf =
         Lwt.fail (Unix.Unix_error(Unix.ENOBUFS, "send_packet: short write", ""))
       else
         Lwt.return_unit)
+
+(* XXX FIXME *)
+let dhcp_server_filter = Lowlevel.dhcp_server_filter
+let dhcp_client_filter = Lowlevel.dhcp_client_filter
