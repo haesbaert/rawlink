@@ -1,4 +1,11 @@
 (executable
  (name rawcap)
  (public_name rawcap)
+ (modules rawcap)
  (libraries rawlink))
+
+(executable
+ (name rawcap_lwt)
+ (public_name rawcap-lwt)
+ (modules rawcap_lwt)
+ (libraries rawlink.lwt))
