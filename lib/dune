@@ -12,7 +12,7 @@
  (modules rawlink_lowlevel)
  (libraries cstruct unix)
  (preprocess (pps ppx_cstruct))
- (c_names rawlink_stubs))
+ (foreign_stubs (language c) (names rawlink_stubs)))
 
 (library
  (name lwt_rawlink)
