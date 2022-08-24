@@ -21,3 +21,10 @@
  (public_name rawlink.lwt)
  (libraries rawlink rawlink_lowlevel lwt lwt.unix))
 
+(library
+ (name eio_rawlink)
+ (synopsis "Eio_rawlink is a Eio interface to BPF/AF_SOCKET")
+ (modules eio_rawlink)
+ (public_name rawlink.eio)
+ (libraries cstruct eio eio.unix rawlink))
+
