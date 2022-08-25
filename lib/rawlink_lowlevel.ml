@@ -16,11 +16,11 @@
 
 [%%cstruct
 type bpf_hdr = {
-	bh_sec: uint32_t;
-	bh_usec: uint32_t;
-	bh_caplen: uint32_t;
-	bh_datalen: uint32_t;
-	bh_hdrlen: uint16_t;
+    bh_sec: uint32_t;
+    bh_usec: uint32_t;
+    bh_caplen: uint32_t;
+    bh_datalen: uint32_t;
+    bh_hdrlen: uint16_t;
 } [@@host_endian]]
 
 type driver =
@@ -32,7 +32,7 @@ external dhcp_server_filter: unit -> string = "caml_dhcp_server_filter"
 external dhcp_client_filter: unit -> string = "caml_dhcp_client_filter"
 external driver: unit -> driver = "caml_driver"
 external unix_bytes_read: Unix.file_descr -> Cstruct.buffer -> int -> int -> int =
-  "lwt_unix_bytes_read"
+  "caml_unix_bytes_read"
 external bpf_align: int -> int -> int = "caml_bpf_align"
 
 let bpf_split_buffer buffer len =

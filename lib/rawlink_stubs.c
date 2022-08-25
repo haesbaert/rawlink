@@ -461,3 +461,15 @@ caml_dhcp_client_filter(value vunit)
 
 	CAMLreturn (vfilter);
 }
+
+/* From lwt, so we can read into a Cstruct.t */
+CAMLprim value caml_unix_bytes_read(value val_fd, value val_buf, value val_ofs,
+    value val_len)
+{
+	long ret;
+	ret = read(Int_val(val_fd),
+	    (char *)Caml_ba_array_val(val_buf)->data + Long_val(val_ofs),
+	    Long_val(val_len));
+	if (ret == -1) uerror("read", Nothing);
+	return Val_long(ret);
+}
