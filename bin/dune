@@ -11,9 +11,9 @@
 (executable
  (name rawcap_eio)
  (modules rawcap_eio)
- (libraries rawlink.eio eio_main))
+ (libraries eio_rawlink eio_main))
 
 (executable
  (name test_arp)
  (modules test_arp)
- (libraries rawlink.eio eio_main arp ethernet))
+ (libraries eio_rawlink eio_main arp ethernet))

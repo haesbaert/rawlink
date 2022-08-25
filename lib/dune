@@ -25,6 +25,6 @@
  (name eio_rawlink)
  (synopsis "Eio_rawlink is a Eio interface to BPF/AF_SOCKET")
  (modules eio_rawlink)
- (public_name rawlink.eio)
+ (package rawlink-eio)
  (libraries cstruct eio eio.unix rawlink))
 
