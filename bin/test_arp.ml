@@ -42,15 +42,17 @@ let rec wait_pkt link hdr pkt =
     wait_pkt link hdr pkt
 
 let () =
-  Eio_main.run @@ fun _env ->
-  Eio.Switch.run (fun sw ->
-    let a_link = Eio_rawlink.open_link ~sw ~promisc:true "lo" in
-    let b_link = Eio_rawlink.open_link ~sw ~promisc:true "lo" in
+  Eio_main.run @@ fun env ->
+  Eio.Switch.run @@ fun sw ->
+  Eio.Time.with_timeout_exn (Eio.Stdenv.clock env) 3.0 @@ fun () ->
 
-    send a_link "A sent:" a_arp_request;
-    wait_pkt b_link "B got:" a_arp_request;
-    Printf.printf "request match !\n%!";
+  let a_link = Eio_rawlink.open_link ~sw ~promisc:true "lo" in
+  let b_link = Eio_rawlink.open_link ~sw ~promisc:true "lo" in
 
-    send b_link "B sent:" b_arp_reply;
-    wait_pkt a_link "A got:" b_arp_reply;
-    Printf.printf "reply match !\n%!")
+  send a_link "A sent:" a_arp_request;
+  wait_pkt b_link "B got:" a_arp_request;
+  Printf.printf "request match !\n%!";
+
+  send b_link "B sent:" b_arp_reply;
+  wait_pkt a_link "A got:" b_arp_reply;
+  Printf.printf "reply match !\n%!"
