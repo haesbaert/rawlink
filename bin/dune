@@ -1,11 +1,19 @@
 (executable
  (name rawcap)
- (public_name rawcap)
  (modules rawcap)
  (libraries rawlink))
 
 (executable
  (name rawcap_lwt)
- (public_name rawcap-lwt)
  (modules rawcap_lwt)
  (libraries rawlink.lwt))
+
+(executable
+ (name rawcap_eio)
+ (modules rawcap_eio)
+ (libraries rawlink.eio eio_main))
+
+(executable
+ (name test_arp)
+ (modules test_arp)
+ (libraries rawlink.eio eio_main arp ethernet))
