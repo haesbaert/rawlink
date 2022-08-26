@@ -3,7 +3,7 @@
  (synopsis "Rawlink is a portable interface to BPF/AF_SOCKET")
  (public_name rawlink)
  (modules rawlink)
- (libraries rawlink_lowlevel cstruct unix lwt.unix))
+ (libraries rawlink_lowlevel))
 
 (library
  (name rawlink_lowlevel)
@@ -18,13 +18,12 @@
  (name lwt_rawlink)
  (synopsis "Lwt_rawlink is a Lwt interface to BPF/AF_SOCKET")
  (modules lwt_rawlink)
- (public_name rawlink.lwt)
- (libraries rawlink rawlink_lowlevel lwt lwt.unix))
+ (package rawlink-lwt)
+ (libraries rawlink rawlink.lowlevel lwt lwt.unix))
 
 (library
  (name eio_rawlink)
  (synopsis "Eio_rawlink is a Eio interface to BPF/AF_SOCKET")
  (modules eio_rawlink)
  (package rawlink-eio)
- (libraries cstruct eio eio.unix rawlink))
-
+ (libraries rawlink rawlink.lowlevel eio eio.unix))

@@ -10,10 +10,10 @@ build: [
   [ "dune" "subst" ] {dev}
   [ "dune" "build" "-p" name "-j" jobs ] ]
 depends: [
-  "ocaml" {>= "5.0.0"}
+  "ocaml" {>= "4.03.0"}
   "dune"
   "rawlink"
-  "eio" {>= "0.4"}
+  "lwt" {>= "2.4.7"}
 ]
 depexts: [
   ["linux-headers"] {os-distribution = "alpine"}
