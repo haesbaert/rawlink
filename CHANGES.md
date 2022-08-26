@@ -1,3 +1,10 @@
+## v2.1 (2022-08-26)
+
+* Fix broken dune files
+* Include `dhcp_client_filter` and `dhcp_server_filter` in Eio
+* Include an actual interface for Eio
+* Fix Eio types on `send_packet`
+
 ## v2.0 (2022-08-26)
 
 * Eio support via rawlink-eio
