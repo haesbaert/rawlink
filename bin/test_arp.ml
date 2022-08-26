@@ -27,8 +27,7 @@ let pp hdr buf =
   print_newline ()
 
 let send link hdr pkt =
-  Eio_rawlink.send_packet link
-    (Eio.Flow.cstruct_source [ pkt ]);
+  Eio_rawlink.send_packet link pkt;
   pp hdr pkt
 
 let recv link hdr =

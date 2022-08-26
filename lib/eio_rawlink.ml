@@ -23,6 +23,9 @@ type t = {
   buffer : Cstruct.t;
 }
 
+let dhcp_server_filter = Lowlevel.dhcp_server_filter
+let dhcp_client_filter = Lowlevel.dhcp_client_filter
+
 let open_link ?filter ?(promisc=false) ifname ~sw =
   let fd = Lowlevel.opensock ?filter:filter ~promisc ifname in
   let flow = Eio_unix.FD.as_socket ~sw ~close_unix:true fd in
@@ -30,7 +33,7 @@ let open_link ?filter ?(promisc=false) ifname ~sw =
 
 let close_link t = t.flow#close
 
-let send_packet t buf = t.flow#copy buf
+let send_packet t buf = t.flow#copy @@ Eio.Flow.cstruct_source [ buf ]
 
 let rec read_packet t =
   match !(t.packets) with

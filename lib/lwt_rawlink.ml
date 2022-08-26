@@ -26,6 +26,9 @@ type t = {
   buffer : Cstruct.t;
 }
 
+let dhcp_server_filter = Lowlevel.dhcp_server_filter
+let dhcp_client_filter = Lowlevel.dhcp_client_filter
+
 let open_link ?filter ?(promisc=false) ifname =
   let fd = Lwt_unix.of_unix_file_descr (Lowlevel.opensock ?filter:filter ~promisc ifname) in
   let () = Lwt_unix.set_blocking fd false in
@@ -54,6 +57,3 @@ let send_packet t buf =
         Lwt.fail (Unix.Unix_error(Unix.ENOBUFS, "send_packet: short write", ""))
       else
         Lwt.return_unit)
-
-let dhcp_server_filter = Lowlevel.dhcp_server_filter
-let dhcp_client_filter = Lowlevel.dhcp_client_filter
