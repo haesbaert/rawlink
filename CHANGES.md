@@ -1,3 +1,11 @@
+## v2.0 (2022-08-26)
+
+* Eio support via rawlink-eio
+* Lwt split into rawlink-lwt
+* More and better testing binaries
+* Update to dune 3.2 format
+* Split common bits in Rawlink_lowlevel
+
 ## v1.2 (2022-04-14)
 
 * Fix linking against non-lwt rawlink
