@@ -18,12 +18,12 @@
  (name lwt_rawlink)
  (synopsis "Lwt_rawlink is a Lwt interface to BPF/AF_SOCKET")
  (modules lwt_rawlink)
- (package rawlink-lwt)
+ (public_name rawlink-lwt)
  (libraries rawlink rawlink.lowlevel lwt lwt.unix))
 
 (library
  (name eio_rawlink)
  (synopsis "Eio_rawlink is a Eio interface to BPF/AF_SOCKET")
  (modules eio_rawlink)
- (package rawlink-eio)
+ (public_name rawlink-eio)
  (libraries rawlink rawlink.lowlevel eio eio.unix))
