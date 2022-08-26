@@ -10,7 +10,7 @@ build: [
   [ "dune" "subst" ] {dev}
   [ "dune" "build" "-p" name "-j" jobs ] ]
 depends: [
-  "ocaml" {>= "4.03.0"}
+  "ocaml" {>= "4.09.0"}
   "dune"
   "cstruct" {>= "6.1.0"}
   "ppx_cstruct"
