@@ -11,8 +11,8 @@ build: [
   [ "dune" "build" "-p" name "-j" jobs ] ]
 depends: [
   "ocaml" {>= "4.09.0"}
-  "dune"
-  "rawlink"
+  "dune" {>= "3.2"}
+  "rawlink" {>= "2.1"}
   "lwt" {>= "2.4.7"}
 ]
 depexts: [

@@ -11,8 +11,8 @@ build: [
   [ "dune" "build" "-p" name "-j" jobs ] ]
 depends: [
   "ocaml" {>= "5.0.0"}
-  "dune"
-  "rawlink"
+  "dune" {>= "3.2"}
+  "rawlink" {>= "2.1"}
   "eio" {>= "0.4"}
 ]
 depexts: [
