@@ -50,6 +50,3 @@ val dhcp_client_filter : unit -> string
 (** [dhcp_client_filter]. Returns a BPF program suitable to be passed in
     [open_link ~filter], it accepts UDP packets destined to
     port 68 (DHCP client). *)
-
-(** internal use only, exported to use from Lwt_rawlink. *)
-val bpf_split_buffer : Cstruct.t -> int -> Cstruct.t list

@@ -24,7 +24,8 @@ type t = {
   buffer : Cstruct.t;
 }
 
-let fd_of t = t.fd
+let dhcp_server_filter = Lowlevel.dhcp_server_filter
+let dhcp_client_filter = Lowlevel.dhcp_client_filter
 
 let open_link ?filter ?(promisc=false) ifname =
   { fd = Lowlevel.opensock ?filter ~promisc ifname;
@@ -50,9 +51,3 @@ let rec read_packet t =
       failwith "Link socket closed";
     t.packets := Lowlevel.process_input t.buffer n;
     read_packet t
-
-(* XXX FIXME *)
-let bpf_split_buffer = Lowlevel.bpf_split_buffer
-
-let dhcp_server_filter = Lowlevel.dhcp_server_filter
-let dhcp_client_filter = Lowlevel.dhcp_client_filter

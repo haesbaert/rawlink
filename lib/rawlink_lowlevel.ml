@@ -14,6 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *)
 
+(* This module is supposed to be used internally only *)
+
 [%%cstruct
 type bpf_hdr = {
     bh_sec: uint32_t;

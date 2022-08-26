@@ -55,6 +55,5 @@ let send_packet t buf =
       else
         Lwt.return_unit)
 
-(* XXX FIXME *)
 let dhcp_server_filter = Lowlevel.dhcp_server_filter
 let dhcp_client_filter = Lowlevel.dhcp_client_filter

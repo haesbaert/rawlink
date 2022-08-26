@@ -6,7 +6,7 @@
 (executable
  (name rawcap_lwt)
  (modules rawcap_lwt)
- (libraries rawlink.lwt))
+ (libraries lwt_rawlink))
 
 (executable
  (name rawcap_eio)
