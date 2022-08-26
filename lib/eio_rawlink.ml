@@ -25,7 +25,6 @@ type t = {
 
 let open_link ?filter ?(promisc=false) ifname ~sw =
   let fd = Lowlevel.opensock ?filter:filter ~promisc ifname in
-  Unix.set_nonblock fd;
   let flow = Eio_unix.FD.as_socket ~sw ~close_unix:true fd in
   { flow; fd; packets = ref []; buffer = (Cstruct.create 65536) }
 
@@ -38,7 +37,5 @@ let rec read_packet t =
   | hd :: tl -> t.packets := tl; hd
   | [] ->
     let n = Eio.Flow.read t.flow t.buffer in
-    if n = 0 then
-      failwith "Link socket closed";
     t.packets := Lowlevel.process_input t.buffer n;
     read_packet t
