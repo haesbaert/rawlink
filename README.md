@@ -16,12 +16,12 @@ function that returns the BPF program as a string, check `rawlink_stubs.c` for
 an example. You can leverage [`dumpcap -d`](https://tshark.dev/packetcraft/arcana/bpf_instructions/)
 to generate BPF programs from human readable filters.
 
-Both normal blocking functions as well as `Lwt` monadic variants are provided.
+Both normal blocking functions as well as `Eio` and `Lwt` bindings are provided.
 
-A typical code for receiving all packets and just sending them back on an
-specified interface are detailed below:
+A typical code for receiving all packets and just sending them back on a
+specific interface is detailed below:
 
-```
+```ocaml
 let link = Rawlink.open_link "eth0" in
 let buf = Rawlink.read_packet link in
 Printf.printf "got a packet with %d bytes.\n%!" (Cstruct.len buf);
