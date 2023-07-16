@@ -4,6 +4,12 @@
  (libraries rawlink))
 
 (executable
+ (name rawcap_async)
+ (modules rawcap_async)
+ (preprocess (pps ppx_jane))
+ (libraries core_unix.command_unix async_rawlink))
+
+(executable
  (name rawcap_lwt)
  (modules rawcap_lwt)
  (libraries lwt_rawlink))
