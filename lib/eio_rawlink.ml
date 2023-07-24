@@ -18,7 +18,6 @@ module Lowlevel = Rawlink_lowlevel
 
 type t = {
   flow : Eio_unix.socket;
-  fd : Unix.file_descr;
   packets : Cstruct.t list ref;
   buffer : Cstruct.t;
 }
@@ -29,7 +28,7 @@ let dhcp_client_filter = Lowlevel.dhcp_client_filter
 let open_link ?filter ?(promisc=false) ifname ~sw =
   let fd = Lowlevel.opensock ?filter:filter ~promisc ifname in
   let flow = Eio_unix.FD.as_socket ~sw ~close_unix:true fd in
-  { flow; fd; packets = ref []; buffer = (Cstruct.create 65536) }
+  { flow; packets = ref []; buffer = (Cstruct.create 65536) }
 
 let close_link t = t.flow#close
 
@@ -39,6 +38,6 @@ let rec read_packet t =
   match !(t.packets) with
   | hd :: tl -> t.packets := tl; hd
   | [] ->
-    let n = Eio.Flow.read t.flow t.buffer in
+    let n = Eio.Flow.single_read t.flow t.buffer in
     t.packets := Lowlevel.process_input t.buffer n;
     read_packet t
