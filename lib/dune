@@ -15,6 +15,14 @@
  (foreign_stubs (language c) (names rawlink_stubs)))
 
 (library
+ (name async_rawlink)
+ (synopsis "Lwt_rawlink is a Lwt interface to BPF/AF_SOCKET")
+ (modules async_rawlink)
+ (public_name rawlink-async)
+ (preprocess (pps ppx_jane))
+ (libraries rawlink rawlink.lowlevel cstruct-async async async_unix))
+
+(library
  (name lwt_rawlink)
  (synopsis "Lwt_rawlink is a Lwt interface to BPF/AF_SOCKET")
  (modules lwt_rawlink)
